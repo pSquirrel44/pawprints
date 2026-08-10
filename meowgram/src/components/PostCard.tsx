@@ -1,0 +1,311 @@
+import React, { useState } from 'react';
+import { Heart, MessageCircle, Share2, Bookmark, Sparkles, MapPin, Send, MoreHorizontal, ShieldCheck, Fish } from 'lucide-react';
+import { Post, Comment } from '../types';
+import { playMeowSound, playTreatSound, playPurrSound } from '../utils/audio';
+
+interface PostCardProps {
+  post: Post;
+  activeHandle: string;
+  onTreatPost: (postId: string) => void;
+  onSavePost: (postId: string) => void;
+  onAddComment: (postId: string, text: string) => void;
+  onSelectTag: (tag: string) => void;
+  onOpenShareModal: (post: Post) => void;
+}
+
+export const PostCard: React.FC<PostCardProps> = ({
+  post,
+  activeHandle,
+  onTreatPost,
+  onSavePost,
+  onAddComment,
+  onSelectTag,
+  onOpenShareModal,
+}) => {
+  const [showTranslation, setShowTranslation] = useState(false);
+  const [showComments, setShowComments] = useState(false);
+  const [newCommentText, setNewCommentText] = useState('');
+  const [showHeartAnim, setShowHeartAnim] = useState(false);
+
+  const handleDoubleTapImage = () => {
+    playTreatSound();
+    setShowHeartAnim(true);
+    if (!post.isTreating) {
+      onTreatPost(post.id);
+    }
+    setTimeout(() => {
+      setShowHeartAnim(false);
+    }, 900);
+  };
+
+  const handleCommentSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCommentText.trim()) return;
+    playMeowSound(1.2);
+    onAddComment(post.id, newCommentText);
+    setNewCommentText('');
+  };
+
+  // Map filterStyle to CSS classes
+  const getFilterStyleClass = (style?: string) => {
+    switch (style) {
+      case 'vintage-whiskers':
+        return 'sepia-[0.35] contrast-125 brightness-90 saturate-150';
+      case 'warm-glow':
+        return 'sepia-[0.25] hue-rotate-[-10deg] contrast-110 saturate-125';
+      case 'cyber-cool':
+        return 'hue-rotate-[180deg] contrast-125 saturate-150';
+      case 'sepia-purr':
+        return 'sepia-[0.7] contrast-105';
+      case 'black-white-paws':
+        return 'grayscale contrast-150';
+      default:
+        return '';
+    }
+  };
+
+  return (
+    <article className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl overflow-hidden shadow-xs hover:shadow-md transition-shadow mb-6">
+      
+      {/* Header */}
+      <div className="p-4 flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800/60">
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <img
+              src={post.authorAvatar}
+              alt={post.authorName}
+              referrerPolicy="no-referrer"
+              className="w-10 h-10 rounded-full object-cover ring-2 ring-rose-500/20"
+            />
+          </div>
+          <div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
+                {post.authorName}
+              </span>
+              <ShieldCheck className="w-4 h-4 text-rose-500 fill-rose-500/10" />
+              <span className="text-xs text-zinc-400 font-normal">@{post.authorHandle}</span>
+            </div>
+            
+            <div className="flex items-center gap-2 mt-0.5">
+              <span className="text-[11px] text-zinc-500 dark:text-zinc-400 flex items-center gap-1 font-medium">
+                <MapPin className="w-3 h-3 text-rose-400" />
+                {post.location}
+              </span>
+              <span className="text-[10px] text-zinc-300 dark:text-zinc-600">•</span>
+              <span className="text-[11px] text-zinc-400">{post.timestamp}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="px-2.5 py-1 text-[11px] font-semibold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/40 rounded-full">
+            {post.category}
+          </span>
+          <button
+            onClick={() => onOpenShareModal(post)}
+            className="p-1.5 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 rounded-full"
+            title="Share Post to Social Media"
+          >
+            <MoreHorizontal className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Post Image Container */}
+      <div
+        className="relative w-full aspect-square bg-zinc-950 overflow-hidden cursor-pointer select-none group"
+        onDoubleClick={handleDoubleTapImage}
+      >
+        <img
+          src={post.imageUrl}
+          alt={post.caption}
+          referrerPolicy="no-referrer"
+          className={`w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.01] ${getFilterStyleClass(
+            post.filterStyle
+          )}`}
+        />
+
+        {/* Double Tap Animated Fish Heart */}
+        {showHeartAnim && (
+          <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none animate-in zoom-in-50 duration-200">
+            <div className="bg-white/90 dark:bg-zinc-900/90 p-5 rounded-full shadow-2xl backdrop-blur-md animate-bounce">
+              <span className="text-6xl">🐟</span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Post Actions & Stats */}
+      <div className="p-4 space-y-3">
+        {/* Actions Row */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {/* Treat (Fish) Button */}
+            <button
+              onClick={() => {
+                playTreatSound();
+                onTreatPost(post.id);
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
+                post.isTreating
+                  ? 'bg-amber-500 text-white shadow-md shadow-amber-500/30 scale-105'
+                  : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-amber-100 dark:hover:bg-amber-950/40 hover:text-amber-600'
+              }`}
+            >
+              <span className="text-sm">🐟</span>
+              <span>{post.isTreating ? 'Treated!' : 'Give Treat'}</span>
+            </button>
+
+            {/* Comment Drawer Toggle */}
+            <button
+              onClick={() => {
+                playMeowSound(1.0);
+                setShowComments(!showComments);
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-zinc-700 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+            >
+              <MessageCircle className="w-4 h-4 text-rose-500" />
+              <span>{post.comments.length} Meows</span>
+            </button>
+
+            {/* Social Share Button */}
+            <button
+              onClick={() => {
+                playPurrSound();
+                onOpenShareModal(post);
+              }}
+              className="p-2 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              title="Share to Instagram, Twitter/X, TikTok, WhatsApp"
+            >
+              <Share2 className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Bookmark Button */}
+          <button
+            onClick={() => {
+              playMeowSound(1.1);
+              onSavePost(post.id);
+            }}
+            className={`p-2 rounded-full transition-colors ${
+              post.isSaved
+                ? 'text-rose-500 bg-rose-50 dark:bg-rose-950/40'
+                : 'text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200'
+            }`}
+            title={post.isSaved ? 'Saved to Treats' : 'Save Post'}
+          >
+            <Bookmark className={`w-5 h-5 ${post.isSaved ? 'fill-rose-500' : ''}`} />
+          </button>
+        </div>
+
+        {/* Treats Count Bar */}
+        <div className="flex items-center gap-2 text-xs font-bold text-zinc-900 dark:text-zinc-100">
+          <span className="text-amber-500">🐟</span>
+          <span>{post.treatsCount.toLocaleString()} Fish Treats Collected</span>
+        </div>
+
+        {/* Caption */}
+        <div className="text-xs text-zinc-800 dark:text-zinc-200 leading-relaxed">
+          <span className="font-bold text-zinc-900 dark:text-zinc-100 mr-2">
+            @{post.authorHandle}
+          </span>
+          {post.caption}
+        </div>
+
+        {/* Tags */}
+        {post.tags && post.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 pt-1">
+            {post.tags.map((tag) => (
+              <button
+                key={tag}
+                onClick={() => {
+                  playMeowSound(1.0);
+                  onSelectTag(tag);
+                }}
+                className="text-[11px] font-semibold text-rose-500 dark:text-rose-400 hover:underline"
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Gemini AI Translation Toggle */}
+        {post.humanTranslation && (
+          <div className="pt-2">
+            <button
+              onClick={() => {
+                playMeowSound(1.1);
+                setShowTranslation(!showTranslation);
+              }}
+              className="flex items-center gap-1.5 text-[11px] font-semibold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-900/50 px-3 py-1.5 rounded-xl border border-purple-200 dark:border-purple-800/40 transition-colors"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-purple-500" />
+              <span>{showTranslation ? 'Hide AI Translation' : '🤖 Translate Meow to Human'}</span>
+            </button>
+
+            {showTranslation && (
+              <div className="mt-2 p-3 bg-purple-50/80 dark:bg-purple-950/30 rounded-2xl border border-purple-200/80 dark:border-purple-800/50 text-xs text-purple-900 dark:text-purple-200 font-medium italic animate-in fade-in duration-150">
+                {post.humanTranslation}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Comments Drawer */}
+        {showComments && (
+          <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 space-y-3 animate-in fade-in duration-150">
+            <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
+              Meow Comments ({post.comments.length})
+            </p>
+
+            <div className="max-h-48 overflow-y-auto space-y-2.5 pr-1">
+              {post.comments.length === 0 ? (
+                <p className="text-xs text-zinc-400 italic">No meows yet. Be the first cat to comment!</p>
+              ) : (
+                post.comments.map((comment) => (
+                  <div key={comment.id} className="flex gap-2.5 text-xs bg-zinc-50 dark:bg-zinc-800/50 p-2.5 rounded-2xl">
+                    <img
+                      src={comment.authorAvatar}
+                      alt={comment.authorName}
+                      referrerPolicy="no-referrer"
+                      className="w-7 h-7 rounded-full object-cover shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-zinc-900 dark:text-zinc-100">
+                          @{comment.authorHandle}
+                        </span>
+                        <span className="text-[10px] text-zinc-400">{comment.timestamp}</span>
+                      </div>
+                      <p className="text-zinc-700 dark:text-zinc-300 mt-0.5">{comment.text}</p>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Add Comment Input */}
+            <form onSubmit={handleCommentSubmit} className="flex items-center gap-2 pt-1">
+              <input
+                type="text"
+                placeholder="Add a meow comment..."
+                value={newCommentText}
+                onChange={(e) => setNewCommentText(e.target.value)}
+                className="flex-1 bg-zinc-100 dark:bg-zinc-800 text-xs px-3.5 py-2 rounded-full border border-transparent focus:border-rose-400 outline-none text-zinc-900 dark:text-zinc-100"
+              />
+              <button
+                type="submit"
+                className="p-2 bg-rose-500 hover:bg-rose-600 text-white rounded-full transition-colors"
+              >
+                <Send className="w-3.5 h-3.5" />
+              </button>
+            </form>
+          </div>
+        )}
+
+      </div>
+    </article>
+  );
+};
