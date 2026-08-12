@@ -179,7 +179,7 @@ export const StoryViewerModal: React.FC<StoryViewerModalProps> = ({
           <form onSubmit={handleSendReply} className="flex items-center gap-2">
             <input
               type="text"
-              placeholder="Send meow reply..."
+              placeholder={isDog ? 'Send woof reply...' : 'Send meow reply...'}
               value={replyText}
               onChange={(e) => setReplyText(e.target.value)}
               className="flex-1 bg-white/10 border border-white/20 text-white placeholder-zinc-400 text-xs rounded-full px-4 py-2 outline-none focus:border-rose-500"

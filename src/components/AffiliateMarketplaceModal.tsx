@@ -56,7 +56,7 @@ export const AffiliateMarketplaceModal: React.FC<AffiliateMarketplaceModalProps>
     playPurrSound();
     setTimeout(() => {
       setIsRedeeming(false);
-      setRedeemedSuccess(`Successfully converted ${treatsCommission} Fish Treats into a $28.40 ${providerName} e-Gift Card sent to ${activeProfile.handle}@meowgram.com!`);
+      setRedeemedSuccess(`Successfully converted ${treatsCommission} {isDog ? 'Bones' : 'Fish Treats'} into a $28.40 ${providerName} e-Gift Card sent to ${activeProfile.handle}@instameow.app!`);
       setTreatsCommission(0);
       playMeowSound(1.3);
     }, 1500);
@@ -75,7 +75,7 @@ export const AffiliateMarketplaceModal: React.FC<AffiliateMarketplaceModalProps>
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-lg font-extrabold flex items-center gap-1.5">
-                  <span>Meowgram Affiliate & Partner Market</span>
+                  <span>Pawprint Network Affiliate & Partner Market</span>
                   <Sparkles className="w-4 h-4 text-emerald-200" />
                 </h2>
               </div>
@@ -98,7 +98,7 @@ export const AffiliateMarketplaceModal: React.FC<AffiliateMarketplaceModalProps>
           <div className="bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 flex items-center justify-between animate-in slide-in-from-top duration-200">
             <div className="flex items-center gap-2">
               <ExternalLink className="w-4 h-4" />
-              <span>Redirecting to {redirectToast.brand} with affiliate code <code className="bg-black/20 px-1.5 py-0.5 rounded">ref=meowgram_cat_affiliate</code></span>
+              <span>Redirecting to {redirectToast.brand} with affiliate code <code className="bg-black/20 px-1.5 py-0.5 rounded">ref=thecatwalk_cat_affiliate</code></span>
             </div>
             <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full">+10 Treat Clicks Logged!</span>
           </div>
@@ -286,7 +286,7 @@ export const AffiliateMarketplaceModal: React.FC<AffiliateMarketplaceModalProps>
               <span>Affiliate Integration Transparency Notice</span>
             </p>
             <p className="leading-relaxed">
-              Meowgram partners with trusted cat suppliers (Amazon, Chewy, Litter-Robot, MeowBox, Inaba Churu). When you buy products using these affiliate links or promo codes, Meowgram earns a small treat commission at no extra cost to you. This monetizes the app and keeps it 100% free for cats everywhere! 🐾
+              The Catwalk partners with trusted cat suppliers (Amazon, Chewy, Litter-Robot, MeowBox, Inaba Churu). When you buy products using these affiliate links or promo codes, The Catwalk earns a small treat commission at no extra cost to you. This monetizes the platform and keeps it free for cats everywhere! 🐾
             </p>
           </div>
 

@@ -115,7 +115,7 @@ export const CreateCatProfileModal: React.FC<CreateCatProfileModalProps> = ({
       handle: generatedHandle || `cat_${Date.now().toString().slice(-4)}`,
       breed,
       age: age.trim() || 'Kitten at heart',
-      bio: bio.trim() || 'Living my best 9 lives on Meowgram! 🐾',
+      bio: bio.trim() || 'Living my best 9 lives on The Catwalk! 🐾',
       location: location.trim() || 'The Living Room Couch',
       favoriteSpot: favoriteSpot.trim() || 'Warm Sunbeam',
       boxPreference: boxPreference.trim() || 'Any Cardboard Box',
@@ -147,7 +147,7 @@ export const CreateCatProfileModal: React.FC<CreateCatProfileModalProps> = ({
                 <Sparkles className="w-4 h-4 text-amber-200" />
               </h2>
               <p className="text-[11px] text-white/90">
-                {isDog ? 'Submit your pooch sovereign to the Barkgram network' : 'Submit your feline sovereign to the Meowgram network'}
+                {isDog ? 'Submit your pooch sovereign to The Dog Park' : 'Submit your feline sovereign to The Catwalk'}
               </p>
             </div>
           </div>

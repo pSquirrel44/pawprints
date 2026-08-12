@@ -18,8 +18,8 @@ export const DeploymentRoadmapModal: React.FC<DeploymentRoadmapModalProps> = ({ 
       color: 'from-amber-500 to-rose-500',
       description: 'Register and assign custom apex domains and subdomains with automatic managed SSL certificates:',
       details: [
-        '🐱 meowgram.app (Cat Social Platform)',
-        '🐶 barkgram.app (Dog Social Platform)',
+        '🐱 instameow.app (The Catwalk)',
+        '🐶 instawoof.app (The Dog Park)',
         '🔒 Automatic Let\'s Encrypt SSL via Cloud Run Custom Domains / Cloud DNS'
       ]
     },
@@ -32,8 +32,8 @@ export const DeploymentRoadmapModal: React.FC<DeploymentRoadmapModalProps> = ({ 
       description: 'Isolate cat and dog datasets while sharing serverless infrastructure for optimal cost efficiency:',
       details: [
         '🗄️ Firestore / Cloud SQL with `species_type` multi-tenant collection indexing',
-        '🔑 Isolated Firebase Auth tenants for Meowgram & Barkgram accounts',
-        '⚡ Independent Redis cache namespaces (`meowgram:*` vs `barkgram:*`)'
+        '🔑 Isolated Firebase Auth tenants for The Catwalk & The Dog Park accounts',
+        '⚡ Independent Redis cache namespaces (`thecatwalk:*` vs `thedogpark:*`)'
       ]
     },
     {
@@ -44,7 +44,7 @@ export const DeploymentRoadmapModal: React.FC<DeploymentRoadmapModalProps> = ({ 
       color: 'from-sky-500 to-blue-600',
       description: 'Deploy standalone container instances on Google Cloud Run with environment variable branding:',
       details: [
-        '🐳 Docker build with `APP_MODE=meowgram` and `APP_MODE=barkgram` flags',
+        '🐳 Docker build with `APP_MODE=thecatwalk` and `APP_MODE=thedogpark` flags',
         '🚀 Auto-scaling from 0 to 100+ instances with sub-second cold starts',
         '⚙️ NGINX reverse proxy routing port 3000 to primary container ingress'
       ]
@@ -82,7 +82,7 @@ export const DeploymentRoadmapModal: React.FC<DeploymentRoadmapModalProps> = ({ 
                 </span>
               </h2>
               <p className="text-xs text-zinc-300">
-                Step-by-step blueprint to launch Meowgram & Barkgram live to production
+                Step-by-step blueprint to launch The Catwalk & The Dog Park live to production
               </p>
             </div>
           </div>
@@ -103,10 +103,10 @@ export const DeploymentRoadmapModal: React.FC<DeploymentRoadmapModalProps> = ({ 
             <Globe className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
             <div className="text-xs space-y-1">
               <p className="font-bold text-zinc-900 dark:text-zinc-100">
-                Dual Domain Architecture: <span className="text-rose-500">meowgram.app</span> + <span className="text-amber-500">barkgram.app</span>
+                Dual Domain Architecture: <span className="text-rose-500">instameow.app</span> + <span className="text-amber-500">instawoof.app</span>
               </p>
               <p className="text-zinc-600 dark:text-zinc-400">
-                Meowgram and Barkgram operate as completely distinct, standalone sister platforms with isolated feeds, branding, local storage, and AI utilities, hosted on high-performance Cloud Run containers.
+                The Catwalk and The Dog Park operate as completely distinct, standalone sister platforms with isolated feeds, branding, local storage, and AI utilities, hosted on high-performance Cloud Run containers.
               </p>
             </div>
           </div>

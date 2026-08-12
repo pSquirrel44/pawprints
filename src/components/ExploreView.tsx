@@ -60,7 +60,7 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
             <span>Discover Feline Trends</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-            Explore the Purr-verse 🐾
+            isDog ? 'Explore the Woof-verse 🐾' : 'Explore the Purr-verse 🐾'
           </h2>
           <p className="text-xs sm:text-sm text-white/90">
             Discover trending cat loaves, midnight zoomies, and regal sunbeam champions from cats worldwide.

@@ -75,10 +75,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
             <div className="hidden sm:block">
               <h1 className={`text-xl font-bold bg-gradient-to-r ${isDog ? 'from-amber-600 via-orange-600 to-sky-600' : 'from-amber-600 via-rose-600 to-purple-600'} bg-clip-text text-transparent tracking-tight`}>
-                {isDog ? 'Barkgram' : 'Meowgram'}
+                {isDog ? 'The Dog Park' : 'The Catwalk'}
               </h1>
               <p className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium -mt-1">
-                {isDog ? 'Barkstagram • Woof-sonal Social' : 'Catstagram • Purr-sonal Social'}
+                {isDog ? 'The Dog Park • Woof-sonal Social' : 'The Catwalk • Purr-sonal Social'}
               </p>
             </div>
           </div>
@@ -90,7 +90,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               else playMeowSound(1.3);
               onToggleSpeciesMode();
             }}
-            title={isDog ? 'Switch to Meowgram (Cats)' : 'Switch to Barkgram (Pooches)'}
+            title={isDog ? 'Switch to The Catwalk (Cats)' : 'Switch to The Dog Park (Dogs)'}
             className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold rounded-full transition-all border shadow-2xs hover:scale-105 ${
               isDog 
                 ? 'bg-amber-50 dark:bg-amber-950/50 text-amber-900 dark:text-amber-200 border-amber-300 dark:border-amber-700' 
@@ -98,7 +98,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <Repeat className="w-3 h-3 animate-spin-slow" />
-            <span>{isDog ? '🐶 Barkgram' : '🐱 Meowgram'}</span>
+            <span>{isDog ? '🐶 The Dog Park' : '🐱 The Catwalk'}</span>
             <span className="text-[10px] font-normal opacity-80 underline">Switch</span>
           </button>
         </div>
@@ -185,7 +185,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onOpenCreateModal();
             }}
             className="p-2 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-colors"
-            title="Create Purr Post"
+            title={isDog ? 'Create Bark Post' : 'Create Purr Post'}
           >
             <PlusSquare className="w-5 h-5" />
           </button>

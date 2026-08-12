@@ -1,10 +1,14 @@
 import express from 'express';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI, Type } from '@google/genai';
 import dotenv from 'dotenv';
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 async function startServer() {
   const app = express();
@@ -32,7 +36,7 @@ async function startServer() {
 
   // Health check
   app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', app: 'Meowgram' });
+    res.json({ status: 'ok', app: 'The Catwalk' });
   });
 
   // AI Cat Caption Generator
@@ -41,7 +45,7 @@ async function startServer() {
       const { mood, breed, topic, location } = req.body;
       const ai = getGeminiClient();
 
-      const prompt = `You are a majestic, hilarious cat on Catstagram/Meowgram writing a social media post caption.
+      const prompt = `You are a majestic, hilarious cat on The Catwalk (by Pawprint Network) writing a social media post caption.
 Context:
 - Mood: ${mood || 'Sassy Overlord'}
 - Breed: ${breed || 'Domestic Cat'}
@@ -54,7 +58,7 @@ Also provide a 1-sentence "Human Translation".
 Format response as strict JSON with fields:
 - "caption": string
 - "humanTranslation": string
-- "tags": string[] (3-5 cat hashtags like #catloaf #3amzoomies #meowgram)`;
+- "tags": string[] (3-5 cat hashtags like #catloaf #3amzoomies #thecatwalk)`;
 
       const response = await ai.models.generateContent({
         model: 'gemini-3.6-flash',
@@ -84,7 +88,7 @@ Format response as strict JSON with fields:
         error: error.message || 'Failed to generate cat caption',
         caption: 'Meow! The human delayed my treats so I refused to write a caption. 😼 #SassyCat',
         humanTranslation: 'Translation: "Please check your Gemini API key in Settings > Secrets."',
-        tags: ['#meowgram', '#catpower', '#geminiau'],
+        tags: ['#thecatwalk', '#pawprintnetwork', '#geminiau'],
       });
     }
   });
@@ -156,11 +160,11 @@ Cat sound: "${text}"`;
             },
           },
           {
-            text: 'Analyze this cat photo for Catstagram. Rate its Judgement Level (0-100), Loaf Form Rating, Inner Monologue, Breed Estimate, Mood Tag, Whiskers Score, and a funny Cat Fun Fact.',
+            text: 'Analyze this cat photo for The Catwalk. Rate its Judgement Level (0-100), Loaf Form Rating, Inner Monologue, Breed Estimate, Mood Tag, Whiskers Score, and a funny Cat Fun Fact.',
           },
         ];
       } else {
-        contents = `Analyze this cat description for Catstagram: "${description || 'An orange tabby cat sitting majestically in a cardboard box'}". Rate its Judgement Level (0-100), Loaf Form Rating, Inner Monologue, Breed Estimate, Mood Tag, Whiskers Score, and a funny Cat Fun Fact.`;
+        contents = `Analyze this cat description for The Catwalk: "${description || 'An orange tabby cat sitting majestically in a cardboard box'}". Rate its Judgement Level (0-100), Loaf Form Rating, Inner Monologue, Breed Estimate, Mood Tag, Whiskers Score, and a funny Cat Fun Fact.`;
       }
 
       const response = await ai.models.generateContent({
@@ -224,7 +228,7 @@ Cat sound: "${text}"`;
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🐾 Meowgram server listening on http://0.0.0.0:${PORT}`);
+    console.log(`🐾 🐾 The Catwalk (Pawprint Network) server listening on http://0.0.0.0:${PORT}`);
   });
 }
 

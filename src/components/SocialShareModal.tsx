@@ -19,7 +19,7 @@ export const SocialShareModal: React.FC<SocialShareModalProps> = ({
   const [copiedLink, setCopiedLink] = useState(false);
   const [shareToast, setShareToast] = useState<string | null>(null);
 
-  const shareText = `Check out this cat post by @${post.authorHandle}: "${post.caption}" 🐾 #Meowgram #Catstagram #CatLoaf`;
+  const shareText = `Check out this cat post by @${post.authorHandle}: "${post.caption}" 🐾 #TheCatwalk #PawprintNetwork #CatLoaf`;
   const shareUrl = `${window.location.origin}/#post-${post.id}`;
 
   const handleCopyLink = () => {
@@ -131,10 +131,10 @@ export const SocialShareModal: React.FC<SocialShareModalProps> = ({
             ))}
           </div>
 
-          {/* Copy Direct Meow Link */}
+          {/* {isDog ? 'Copy Direct Bark Link' : 'Copy Direct Meow Link'} */}
           <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800">
             <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1.5">
-              Copy Direct Meow Link
+              {isDog ? 'Copy Direct Bark Link' : 'Copy Direct Meow Link'}
             </label>
             <div className="flex items-center gap-2">
               <input

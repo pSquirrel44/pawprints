@@ -53,7 +53,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
   const [humanTranslation, setHumanTranslation] = useState('');
   const [location, setLocation] = useState(LOCATIONS[0]);
   const [category, setCategory] = useState<Post['category']>('Nap Champs');
-  const [tagsInput, setTagsInput] = useState('#catlife, #meowgram');
+  const [tagsInput, setTagsInput] = useState('#catlife, #thecatwalk');
   const [selectedMood, setSelectedMood] = useState(MOODS[0]);
   const [isGeneratingCaption, setIsGeneratingCaption] = useState(false);
 
@@ -164,7 +164,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
           <div className="flex items-center gap-2">
             <Cat className="w-5 h-5 text-rose-500" />
             <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
-              Create Purr Post
+              {isDog ? 'Create Bark Post' : 'Create Purr Post'}
             </h2>
           </div>
           <button
@@ -345,7 +345,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
             </label>
             <textarea
               rows={3}
-              placeholder="Write a purr-fect meow caption..."
+              placeholder={isDog ? 'Write a pawsome bark caption...' : 'Write a purr-fect meow caption...'}
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
               className="w-full px-4 py-2.5 text-xs bg-zinc-50 dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-100 outline-none focus:border-rose-400"
@@ -371,7 +371,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
             type="submit"
             className="w-full py-3.5 bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600 text-white font-bold text-sm rounded-2xl shadow-lg shadow-rose-500/20 hover:opacity-95 transition-opacity"
           >
-            Post to Meowgram 🐾
+            Post to The Catwalk 🐾
           </button>
 
         </form>

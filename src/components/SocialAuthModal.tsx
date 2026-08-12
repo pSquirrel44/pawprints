@@ -79,7 +79,7 @@ export const SocialAuthModal: React.FC<SocialAuthModalProps> = ({
               />
             </div>
             <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
-              Welcome to Meowgram, @{activeProfile.handle}!
+              Welcome to The Catwalk, @{activeProfile.handle}!
             </h3>
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
               Log in or link your social accounts to sync cat posts, unlock verified badges, and earn extra treats.
@@ -127,7 +127,7 @@ export const SocialAuthModal: React.FC<SocialAuthModalProps> = ({
           </div>
 
           <p className="text-[11px] text-zinc-400 text-center italic">
-            🐾 Fast, secure login powered by Meowgram OAuth & Gemini AI.
+            🐾 Fast, secure login powered by Pawprint Network OAuth & Gemini AI.
           </p>
 
         </div>

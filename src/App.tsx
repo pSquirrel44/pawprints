@@ -174,8 +174,8 @@ export default function App() {
       badges: [
         {
           id: 'b_welcome',
-          title: 'Royal Meowgram Debut',
-          description: 'Official cat profile submitted to the global Meowgram network!',
+          title: 'The Catwalk Debut',
+          description: 'Official cat profile submitted to the The Catwalk by Pawprint Network!',
           icon: '👑',
           unlockedAt: 'Just now',
         },
@@ -197,7 +197,7 @@ export default function App() {
       actorName: newProfile.name,
       actorAvatar: newProfile.avatar,
       type: 'follow',
-      text: `Welcome @${newProfile.handle} to Meowgram! Your profile is live.`,
+      text: `Welcome @${newProfile.handle} to The Catwalk! Your profile is live.`,
       timestamp: 'Just now',
       isRead: false,
     };
@@ -343,14 +343,14 @@ export default function App() {
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="font-extrabold uppercase tracking-wider text-[10px] bg-gradient-to-r from-amber-400 to-rose-400 bg-clip-text text-transparent">
-              PetVerse Network
+              Pawprint Network
             </span>
             <span className="text-zinc-600">|</span>
             <span className="text-zinc-400 hidden md:inline">2 Independent Live Social Apps</span>
           </div>
 
           <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-            {/* Meowgram Tab */}
+            {/* The Catwalk Tab */}
             <button
               onClick={() => {
                 if (speciesMode !== 'cat') handleToggleSpeciesMode();
@@ -361,11 +361,11 @@ export default function App() {
                   : 'bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700'
               }`}
             >
-              <span>🐱 Meowgram</span>
-              <span className="text-[9px] opacity-75 font-mono">meowgram.app</span>
+              <span>🐱 The Catwalk</span>
+              <span className="text-[9px] opacity-75 font-mono">instameow.app</span>
             </button>
 
-            {/* Barkgram Tab */}
+            {/* The Dog Park Tab */}
             <button
               onClick={() => {
                 if (speciesMode !== 'dog') handleToggleSpeciesMode();
@@ -376,8 +376,8 @@ export default function App() {
                   : 'bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700'
               }`}
             >
-              <span>🐶 Barkgram</span>
-              <span className="text-[9px] opacity-75 font-mono">barkgram.app</span>
+              <span>🐶 The Dog Park</span>
+              <span className="text-[9px] opacity-75 font-mono">instawoof.app</span>
             </button>
 
             {/* Deployment Roadmap Modal Button */}
@@ -454,6 +454,7 @@ export default function App() {
                   onSavePost={handleSavePost}
                   onAddComment={handleAddComment}
                   onSelectTag={handleSelectTag}
+                  isDog={speciesMode === 'dog'}
                   onOpenShareModal={(p) => setSharePostTarget(p)}
                 />
               ))}
@@ -480,7 +481,7 @@ export default function App() {
                   <span className="text-sm font-normal text-zinc-400">({savedPostsList.length})</span>
                 </h2>
                 <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-                  Cat posts you've saved to your private treat stash.
+                  isDog cat/dog posts you've saved to your private stash.
                 </p>
               </div>
 
@@ -500,7 +501,8 @@ export default function App() {
                     onSavePost={handleSavePost}
                     onAddComment={handleAddComment}
                     onSelectTag={handleSelectTag}
-                    onOpenShareModal={(p) => setSharePostTarget(p)}
+                    isDog={speciesMode === 'dog'}
+                  onOpenShareModal={(p) => setSharePostTarget(p)}
                   />
                 ))
               )}
@@ -586,7 +588,7 @@ export default function App() {
                     <button
                       onClick={() => handleTreatProfile(prof.id)}
                       className="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white text-[11px] font-bold rounded-xl shrink-0 transition-colors"
-                      title="Give Fish Treat"
+                      title={speciesMode === 'dog' ? 'Give Bone' : 'Give Fish Treat'}
                     >
                       🐟 Treat
                     </button>
@@ -597,7 +599,7 @@ export default function App() {
 
           {/* Footer Info */}
           <div className="px-2 text-[11px] text-zinc-400 space-y-1">
-            <p>Meowgram © 2026 • Powered by Gemini AI</p>
+            <p>© 2026 Pawprint Network • Powered by Gemini AI</p>
             <p>Made with 🐾 for cat lovers worldwide.</p>
           </div>
 

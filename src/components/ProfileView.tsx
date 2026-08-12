@@ -187,7 +187,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 <strong className="block text-base font-extrabold text-zinc-900 dark:text-zinc-100">
                   {profilePosts.length}
                 </strong>
-                <span className="text-zinc-400">Purr Posts</span>
+                <span className="text-zinc-400">{isDog ? 'Bark Posts' : 'Purr Posts'}</span>
               </div>
 
               <div>
