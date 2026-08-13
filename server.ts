@@ -1,16 +1,27 @@
 import express from 'express';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI, Type } from '@google/genai';
+import { clerkMiddleware, requireAuth } from '@clerk/express';
 import dotenv from 'dotenv';
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 async function startServer() {
   const app = express();
   const PORT = 3000;
 
   app.use(express.json({ limit: '10mb' }));
+
+  // Clerk auth middleware — reads session token from every request
+  app.use(clerkMiddleware());
+
+  // Protect all /api routes — returns 401 if not signed in
+  app.use('/api', requireAuth());
 
   // Initialize Gemini AI SDK lazily/safely
   const getGeminiClient = () => {

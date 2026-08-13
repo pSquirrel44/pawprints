@@ -32,8 +32,11 @@ import { AffiliateMarketplaceModal } from './components/AffiliateMarketplaceModa
 import { SocialAuthModal } from './components/SocialAuthModal';
 import { SocialShareModal } from './components/SocialShareModal';
 import { DeploymentRoadmapModal } from './components/DeploymentRoadmapModal';
+import { ClerkAuthGate } from './components/ClerkAuthGate';
+import { useUser } from '@clerk/clerk-react';
 
 export default function App() {
+  const { user } = useUser();
   const [speciesMode, setSpeciesMode] = useState<'cat' | 'dog'>('cat');
 
   const [profiles, setProfiles] = useState<CatProfile[]>([]);
@@ -336,6 +339,7 @@ export default function App() {
   const savedPostsList = posts.filter((p) => p.isSaved);
 
   return (
+    <ClerkAuthGate isDog={speciesMode === 'dog'}>
     <div className="min-h-screen bg-zinc-100 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans antialiased transition-colors">
       
       {/* Top Network Selector Header */}
@@ -678,5 +682,6 @@ export default function App() {
       />
 
     </div>
+    </ClerkAuthGate>
   );
 }
