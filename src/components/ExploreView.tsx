@@ -12,7 +12,7 @@ interface ExploreViewProps {
   onSelectTag: (tag: string) => void;
 }
 
-const CAT_(isDog ? DOG_TRENDING_TAGS : (isDog ? DOG_TRENDING_TAGS : CAT_TRENDING_TAGS)) = [
+const CAT_TRENDING_TAGS = [
   '#catloaf',
   '#3amzoomies',
   '#wifiwarrior',
@@ -22,7 +22,7 @@ const CAT_(isDog ? DOG_TRENDING_TAGS : (isDog ? DOG_TRENDING_TAGS : CAT_TRENDING
   '#sunbeammonarch',
   '#toebeans',
 ];
-const DOG_(isDog ? DOG_TRENDING_TAGS : (isDog ? DOG_TRENDING_TAGS : CAT_TRENDING_TAGS)) = [
+const DOG_TRENDING_TAGS = [
   '#zoomies',
   '#goodboy',
   '#fetchlife',
@@ -76,7 +76,7 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
             <span>{isDog ? 'Discover Canine Trends' : 'Discover Feline Trends'}</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-            isDog ? 'Explore the Woof-verse 🐾' : 'Explore the Purr-verse 🐾'
+            {            isDog ? 'Explore the Woof-verse 🐾' : 'Explore the Purr-verse 🐾'}
           </h2>
           <p className="text-xs sm:text-sm text-white/90">
             {isDog ? 'Discover trending zoomies, stick finds, good boy moments, and squirrel alerts from dogs worldwide.' : 'Discover trending cat loaves, midnight zoomies, and regal sunbeam champions from cats worldwide.'}
@@ -91,11 +91,11 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
           <span>Trending Cat Hashtags</span>
         </p>
         <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-          {(isDog ? DOG_TRENDING_TAGS : (isDog ? DOG_TRENDING_TAGS : CAT_TRENDING_TAGS)).map((tag) => (
+          {(isDog ? DOG_TRENDING_TAGS : CAT_TRENDING_TAGS).map((tag) => (
             <button
               key={tag}
               onClick={() => {
-                playSound(1.0);
+                isDog ? playWoofSound(1.0) : playMeowSound(1.0);
                 onSelectTag(tag);
               }}
               className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 ${
@@ -116,7 +116,7 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
           <button
             key={cat}
             onClick={() => {
-              playSound(0.9);
+              isDog ? playWoofSound(0.9) : playMeowSound(0.9);
               setSelectedCategory(cat);
             }}
             className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all shrink-0 ${
