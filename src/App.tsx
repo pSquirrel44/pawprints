@@ -667,11 +667,13 @@ export default function App() {
       <MeowTranslatorModal
         isOpen={isTranslatorModalOpen}
         onClose={() => setIsTranslatorModalOpen(false)}
+        isDog={speciesMode === 'dog'}
       />
 
       <CatAnalyzerModal
         isOpen={isAnalyzerModalOpen}
         onClose={() => setIsAnalyzerModalOpen(false)}
+        isDog={speciesMode === 'dog'}
       />
 
       <NotificationsModal

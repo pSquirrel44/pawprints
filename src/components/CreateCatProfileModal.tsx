@@ -112,11 +112,11 @@ export const CreateCatProfileModal: React.FC<CreateCatProfileModalProps> = ({
 
     onCreateProfile({
       name: name.trim(),
-      handle: generatedHandle || `cat_${Date.now().toString().slice(-4)}`,
+      handle: generatedHandle || `${isDog ? 'dog' : 'cat'}_${Date.now().toString().slice(-4)}`,
       breed,
-      age: age.trim() || 'Kitten at heart',
-      bio: bio.trim() || 'Living my best 9 lives on The Catwalk! 🐾',
-      location: location.trim() || 'The Living Room Couch',
+      age: age.trim() || (isDog ? 'Puppy at heart' : 'Kitten at heart'),
+      bio: bio.trim() || (isDog ? 'Living my best zoomie life on The Dog Park! 🦴' : 'Living my best 9 lives on The Catwalk! 🐾'),
+      location: location.trim() || (isDog ? 'The Backyard' : 'The Living Room Couch'),
       favoriteSpot: favoriteSpot.trim() || 'Warm Sunbeam',
       boxPreference: boxPreference.trim() || 'Any Cardboard Box',
       avatar,
@@ -356,8 +356,8 @@ export const CreateCatProfileModal: React.FC<CreateCatProfileModalProps> = ({
             type="submit"
             className="w-full py-3.5 bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600 text-white font-bold text-sm rounded-2xl shadow-md shadow-rose-500/20 hover:opacity-95 transition-opacity flex items-center justify-center gap-2"
           >
-            <Cat className="w-4 h-4" />
-            <span>Create Profile & Switch Active Cat</span>
+            {isDog ? <Dog className="w-4 h-4" /> : <Cat className="w-4 h-4" />}
+            <span>{isDog ? 'Create Profile & Switch Active Dog' : 'Create Profile & Switch Active Cat'}</span>
           </button>
 
         </form>

@@ -38,7 +38,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   return (
-    <aside className="hidden lg:flex flex-col w-64 fixed left-0 top-16 bottom-0 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 p-4 justify-between z-30 overflow-y-auto">
+    <aside className="hidden lg:flex flex-col w-64 fixed left-0 top-[88px] bottom-0 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 p-4 justify-between z-30 overflow-y-auto">
       <div className="space-y-5">
         
         {/* Main Nav Links */}
@@ -55,7 +55,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 }}
                 className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-semibold transition-all ${
                   isActive
-                    ? 'brand-muted-bg 50 dark:brand-muted-bg 950/40 brand-muted-text 600 dark:brand-muted-text 400 border border-rose-200 dark:border-rose-800/40 shadow-xs'
+                    ? 'brand-sidebar-active border brand-muted-border shadow-xs'
                     : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 hover:text-zinc-900 dark:hover:text-zinc-100'
                 }`}
               >
