@@ -453,7 +453,7 @@ export default function App() {
             <div className="space-y-6 pb-12">
               {/* Instagram-style Stories Header Bar */}
               <StoriesBar
-isDog={speciesMode === \'dog\'}
+isDog={speciesMode === 'dog'}
                                 stories={stories}
                 activeProfile={activeProfile}
                 onSelectStory={(s) => setSelectedStory(s)}
@@ -480,7 +480,7 @@ isDog={speciesMode === \'dog\'}
           {/* Explore Tab View */}
           {activeTab === 'explore' && (
             <ExploreView
-isDog={speciesMode === \'dog\'}
+isDog={speciesMode === 'dog'}
                               posts={posts}
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
@@ -665,7 +665,7 @@ isDog={speciesMode === \'dog\'}
       />
 
       <SocialShareModal
-isDog={speciesMode === \'dog\'}
+isDog={speciesMode === 'dog'}
                         post={sharePostTarget}
         isOpen={sharePostTarget !== null}
         onClose={() => setSharePostTarget(null)}
