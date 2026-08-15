@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { X, Share2, Copy, Check, ExternalLink, Sparkles } from 'lucide-react';
 import { Post } from '../types';
-import { playMeowSound, playTreatSound } from '../utils/audio';
+import { playMeowSound, playTreatSound, playWoofSound } from '../utils/audio';
 
 interface SocialShareModalProps {
+  isDog?: boolean;
   post: Post | null;
   isOpen: boolean;
   onClose: () => void;
 }
 
 export const SocialShareModal: React.FC<SocialShareModalProps> = ({
+  isDog = false,
   post,
   isOpen,
   onClose,
@@ -19,7 +21,9 @@ export const SocialShareModal: React.FC<SocialShareModalProps> = ({
   const [copiedLink, setCopiedLink] = useState(false);
   const [shareToast, setShareToast] = useState<string | null>(null);
 
-  const shareText = `Check out this cat post by @${post.authorHandle}: "${post.caption}" 🐾 #TheCatwalk #PawprintNetwork #CatLoaf`;
+  const shareText = isDog
+    ? `Check out this dog post by @${post.authorHandle}: "${post.caption}" 🦴 #TheDogPark #PawprintNetwork #GoodBoy`
+    : `Check out this cat post by @${post.authorHandle}: "${post.caption}" 🐾 #TheCatwalk #PawprintNetwork #CatLoaf`;
   const shareUrl = `${window.location.origin}/#post-${post.id}`;
 
   const handleCopyLink = () => {
@@ -30,7 +34,7 @@ export const SocialShareModal: React.FC<SocialShareModalProps> = ({
   };
 
   const handleSocialShare = (platform: string, targetUrl: string) => {
-    playMeowSound(1.2);
+    playSound(1.2);
     setShareToast(`Opening ${platform} share window for @${post.authorHandle}'s post...`);
     window.open(targetUrl, '_blank');
     setTimeout(() => setShareToast(null), 3000);
@@ -83,7 +87,7 @@ export const SocialShareModal: React.FC<SocialShareModalProps> = ({
         <div className="p-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between bg-gradient-to-r from-rose-500 to-purple-600 text-white">
           <div className="flex items-center gap-2">
             <Share2 className="w-5 h-5" />
-            <h2 className="text-base font-bold">Share Cat Post to Socials</h2>
+            <h2 className="text-base font-bold">{isDog ? 'Share Dog Post to Socials' : 'Share Cat Post to Socials'}</h2>
           </div>
 
           <button

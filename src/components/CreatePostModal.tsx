@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { X, Sparkles, Upload, Image as ImageIcon, MapPin, Tag, Cat, RefreshCw } from 'lucide-react';
 import { CatProfile, Post } from '../types';
-import { playMeowSound, playPurrSound } from '../utils/audio';
+import { playMeowSound, playPurrSound, playWoofSound } from '../utils/audio';
 
 interface CreatePostModalProps {
+  isDog?: boolean;
   isOpen: boolean;
   onClose: () => void;
   activeProfile: CatProfile;
@@ -20,15 +21,15 @@ const SAMPLE_IMAGES = [
 
 const FILTERS = [
   { id: 'none', label: 'Normal' },
-  { id: 'vintage-whiskers', label: 'Vintage Whiskers' },
-  { id: 'warm-glow', label: 'Warm Loaf' },
+  { id: 'vintage-whiskers', label: isDog ? 'Vintage Rover' : 'Vintage Whiskers' },
+  { id: 'warm-glow', label: isDog ? 'Golden Hour' : 'Warm Loaf' },
   { id: 'cyber-cool', label: 'Cyber Kitten' },
-  { id: 'sepia-purr', label: 'Sepia Purr' },
+  { id: 'sepia-purr', label: isDog ? 'Sepia Snoot' : 'Sepia Purr' },
   { id: 'black-white-paws', label: 'B&W Paws' },
 ];
 
 const LOCATIONS = [
-  'The Sunbeam on Carpet',
+  isDog ? 'The Backyard Grass' : 'The Sunbeam on Carpet',
   'Top of the Wi-Fi Router',
   'Cardboard Box #4',
   'Kitchen Island Counter',
@@ -37,9 +38,12 @@ const LOCATIONS = [
   'On Top of Keyboard',
 ];
 
-const MOODS = ['Sassy Overlord', 'Sleepy Loaf', '3AM Zoomies Chaos', 'Philosophical Cat', 'Demanding Wet Food'];
+const MOODS = isDog
+  ? ['Maximum Zoomies', 'Good Boy Mode', 'Squirrel Alert', 'Nap Champion', 'Treat Obsessed']
+  : ['Sassy Overlord', 'Sleepy Loaf', '3AM Zoomies Chaos', 'Philosophical Cat', 'Demanding Wet Food'];
 
 export const CreatePostModal: React.FC<CreatePostModalProps> = ({
+  isDog = false,
   isOpen,
   onClose,
   activeProfile,
@@ -53,7 +57,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
   const [humanTranslation, setHumanTranslation] = useState('');
   const [location, setLocation] = useState(LOCATIONS[0]);
   const [category, setCategory] = useState<Post['category']>('Nap Champs');
-  const [tagsInput, setTagsInput] = useState('#catlife, #thecatwalk');
+  const [tagsInput, setTagsInput] = useState(isDog ? '#doglife, #thedogpark' : '#catlife, #thecatwalk');
   const [selectedMood, setSelectedMood] = useState(MOODS[0]);
   const [isGeneratingCaption, setIsGeneratingCaption] = useState(false);
 
@@ -65,7 +69,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
       reader.onload = (event) => {
         if (event.target?.result) {
           setImageUrl(event.target.result as string);
-          playMeowSound(1.1);
+          playSound(1.1);
         }
       };
       reader.readAsDataURL(file);
@@ -98,10 +102,10 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
       if (data.tags && Array.isArray(data.tags)) {
         setTagsInput(data.tags.join(', '));
       }
-      playMeowSound(1.3);
+      playSound(1.3);
     } catch (err) {
       console.error('Caption generation error:', err);
-      setCaption('I sat in the warm sunbeam and decided this household belongs to me. 😼 #SunbeamMonarch');
+      setCaption(isDog ? 'I found the BIGGEST stick in the park and now it belongs to me. 🦴 #StickChampion' : 'I sat in the warm sunbeam and decided this household belongs to me. 😼 #SunbeamMonarch');
       setHumanTranslation('Translation: "I demand treat adoration immediately."');
     } finally {
       setIsGeneratingCaption(false);
@@ -118,7 +122,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
       .filter((t) => t.length > 0)
       .map((t) => (t.startsWith('#') ? t : `#${t}`));
 
-    playMeowSound(1.2);
+    playSound(1.2);
     onCreatePost({
       authorId: activeProfile.id,
       authorHandle: activeProfile.handle,
@@ -184,7 +188,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
             {/* Image Box */}
             <div className="space-y-3">
               <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider">
-                1. Select / Upload Cat Photo
+                {isDog ? '1. Select / Upload Dog Photo' : '1. Select / Upload Cat Photo'}
               </label>
 
               <div className="relative aspect-square bg-zinc-950 rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800 group">
@@ -209,7 +213,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
 
               {/* Sample Snaps Picker */}
               <div>
-                <p className="text-[11px] text-zinc-400 mb-1.5 font-medium">Or pick a sample cat photo:</p>
+                <p className="text-[11px] text-zinc-400 mb-1.5 font-medium">{isDog ? "Or pick a sample dog photo:" : "Or pick a sample cat photo:"}</p>
                 <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
                   {SAMPLE_IMAGES.map((sample, idx) => (
                     <button
@@ -281,7 +285,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
                   onChange={(e) => setCategory(e.target.value as Post['category'])}
                   className="w-full px-3 py-2 text-xs bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-100 outline-none"
                 >
-                  {['Kittens', 'Chonkers', 'Cosplay', 'Nap Champs', 'Loafing', 'Zoomies'].map((cat) => (
+                  {(isDog ? ['Puppies', 'Chonky Dogs', 'Costumes', 'Nap Champs', 'Zoomies', 'Fetch'] : ['Kittens', 'Chonkers', 'Cosplay', 'Nap Champs', 'Loafing', 'Zoomies']).map((cat) => (
                     <option key={cat} value={cat}>
                       🏷️ {cat}
                     </option>
@@ -359,7 +363,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
             </label>
             <input
               type="text"
-              placeholder="#catlife, #3amzoomies, #sunbeam"
+              placeholder={isDog ? "#doglife, #zoomies, #goodboy" : "#catlife, #3amzoomies, #sunbeam"}
               value={tagsInput}
               onChange={(e) => setTagsInput(e.target.value)}
               className="w-full px-4 py-2 text-xs bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-100 outline-none"
@@ -371,7 +375,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
             type="submit"
             className="w-full py-3.5 bg-gradient-to-r from-amber-500 via-rose-500 to-[var(--brand-3)] 600 text-white font-bold text-sm rounded-2xl shadow-lg shadow-rose-500/20 hover:opacity-95 transition-opacity"
           >
-            Post to The Catwalk 🐾
+            {isDog ? 'Post to The Dog Park 🦴' : 'Post to The Catwalk 🐾'}
           </button>
 
         </form>

@@ -1,3 +1,12 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// PAWPRINT NETWORK — server.ts
+// ───────────────────────────────────────────────────────────────────────────
+// ⚠️  BUILD FORMAT: This file is compiled by esbuild to CommonJS (dist/server.cjs)
+//     DO NOT add `import.meta.url`, `fileURLToPath`, or `__dirname/__filename`
+//     from the 'url' module — those are ESM-only and will crash the server.
+//     This bug has already been introduced and fixed multiple times. Leave this
+//     comment here as a reminder. If you see those lines, delete them.
+// ═══════════════════════════════════════════════════════════════════════════
 import express from 'express';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
@@ -6,6 +15,7 @@ import { clerkMiddleware, requireAuth } from '@clerk/express';
 import dotenv from 'dotenv';
 
 dotenv.config();
+
 
 async function startServer() {
   const app = express();
@@ -45,7 +55,7 @@ async function startServer() {
   // AI Cat Caption Generator
   app.post('/api/gemini/cat-caption', async (req, res) => {
     try {
-      const { mood, breed, topic, location } = req.body;
+      const { mood, breed, topic, location, isDog } = req.body;
       const ai = getGeminiClient();
 
       const prompt = `You are a majestic, hilarious cat on The Catwalk (by Pawprint Network) writing a social media post caption.
@@ -89,27 +99,28 @@ Format response as strict JSON with fields:
       console.error('Gemini Caption Error:', error);
       res.status(500).json({
         error: error.message || 'Failed to generate cat caption',
-        caption: 'Meow! The human delayed my treats so I refused to write a caption. 😼 #SassyCat',
+        caption: isDog ? 'WOOF! Something interrupted my zoomies so I could not write a caption. 🦴 #GoodBoyBlocked' : 'Meow! The human delayed my treats so I refused to write a caption. 😼 #SassyCat',
         humanTranslation: 'Translation: "Please check your Gemini API key in Settings > Secrets."',
-        tags: ['#thecatwalk', '#pawprintnetwork', '#geminiau'],
+        tags: isDog ? ['#thedogpark', '#pawprintnetwork', '#geminiai'] : ['#thecatwalk', '#pawprintnetwork', '#geminiai'],
       });
     }
   });
 
   // AI Meow Translator
   app.post('/api/gemini/meow-translator', async (req, res) => {
-    const { mode, text } = req.body || {};
+    const { mode, text, isDog } = req.body || {};
     try {
       const ai = getGeminiClient();
 
       let prompt = '';
-      if (mode === 'human-to-cat') {
-        prompt = `Translate the following human message into "Cat Speak / Meow Language".
-Human text: "${text}"
-Make it cute, funny, full of meows, purrs, claw taps, and subtle cat arrogance.`;
+      if (isDog) {
+        prompt = mode === 'human-to-cat'
+          ? \`You are a joyful, enthusiastic dog. Translate this human message into Dog Speak (woofs, borks, tail wags, zoomie energy). Human text: "${text}". Reply ONLY with valid JSON: {"translatedText":"...","catMood":"...","actionNote":"..."}\`
+          : \`You are translating dog barks into what the dog is REALLY thinking — joyful, loyal, squirrel-obsessed human thoughts. Dog sounds: "${text}". Reply ONLY with valid JSON: {"translatedText":"...","catMood":"...","actionNote":"..."}\`;
       } else {
-        prompt = `Translate the following cat sounds/meows into what the cat is REALLY thinking in sophisticated, sassy human thoughts.
-Cat sound: "${text}"`;
+        prompt = mode === 'human-to-cat'
+          ? \`Translate this human message into Cat Speak (meows, purrs, claw taps, cat arrogance). Human text: "${text}". Reply ONLY with valid JSON: {"translatedText":"...","catMood":"...","actionNote":"..."}\`
+          : \`Translate these cat sounds into what the cat is REALLY thinking — sophisticated, sassy, regal human thoughts. Cat sounds: "${text}". Reply ONLY with valid JSON: {"translatedText":"...","catMood":"...","actionNote":"..."}\`;
       }
 
       const response = await ai.models.generateContent({
@@ -135,11 +146,15 @@ Cat sound: "${text}"`;
       console.error('Gemini Translator Error:', error);
       res.status(500).json({
         error: error.message || 'Translation failed',
-        translatedText: mode === 'human-to-cat' 
-          ? 'Meow prrrrr *slow blink* (Human, I acknowledged your attempt at communication).'
-          : 'Translation: "Fill my bowl immediately or face 3 AM corridor zoomies."',
-        catMood: 'Mildly Intrigued',
-        actionNote: '*Tail flicks once*',
+        translatedText: isDog
+          ? (mode === 'human-to-cat'
+              ? 'WOOF WOOF *zooms around yard* (one word registered and it was WALK).'
+              : 'Translation: "Did someone say TREAT?? I am SO ready. What are we doing."')
+          : (mode === 'human-to-cat'
+              ? 'Meow prrrrr *slow blink* (Human, I acknowledged your attempt at communication).'
+              : 'Translation: "Fill my bowl immediately or face 3 AM corridor zoomies."'),
+        catMood: isDog ? 'Maximum Enthusiasm' : 'Mildly Intrigued',
+        actionNote: isDog ? '*vibrates with excitement*' : '*Tail flicks once*',
       });
     }
   });
@@ -147,7 +162,7 @@ Cat sound: "${text}"`;
   // AI Cat Vision & Judgement Analyzer
   app.post('/api/gemini/cat-analyzer', async (req, res) => {
     try {
-      const { imageBase64, mimeType, description } = req.body;
+      const { imageBase64, mimeType, description, isDog } = req.body;
       const ai = getGeminiClient();
 
       let contents: any = [];
@@ -163,11 +178,15 @@ Cat sound: "${text}"`;
             },
           },
           {
-            text: 'Analyze this cat photo for The Catwalk. Rate its Judgement Level (0-100), Loaf Form Rating, Inner Monologue, Breed Estimate, Mood Tag, Whiskers Score, and a funny Cat Fun Fact.',
+            text: isDog
+              ? 'Analyze this dog photo for The Dog Park. Rate its Goodness Level (0-100, higher = better good boy), Zoomie Rating, Inner Monologue, Breed Estimate, Mood Tag, Eyebrow Expressiveness Score, and a funny Dog Fun Fact.'
+              : 'Analyze this cat photo for The Catwalk. Rate its Judgement Level (0-100), Loaf Form Rating, Inner Monologue, Breed Estimate, Mood Tag, Whiskers Score, and a funny Cat Fun Fact.',
           },
         ];
       } else {
-        contents = `Analyze this cat description for The Catwalk: "${description || 'An orange tabby cat sitting majestically in a cardboard box'}". Rate its Judgement Level (0-100), Loaf Form Rating, Inner Monologue, Breed Estimate, Mood Tag, Whiskers Score, and a funny Cat Fun Fact.`;
+        contents = isDog
+          ? `Analyze this dog description for The Dog Park: "${description || 'A happy golden retriever doing maximum zoomies'}". Rate its Goodness Level (0-100), Zoomie Rating, Inner Monologue, Breed Estimate, Mood Tag, Eyebrow Expressiveness Score, and a funny Dog Fun Fact.`
+          : `Analyze this cat description for The Catwalk: "${description || 'An orange tabby cat sitting majestically in a cardboard box'}". Rate its Judgement Level (0-100), Loaf Form Rating, Inner Monologue, Breed Estimate, Mood Tag, Whiskers Score, and a funny Cat Fun Fact.`;
       }
 
       const response = await ai.models.generateContent({

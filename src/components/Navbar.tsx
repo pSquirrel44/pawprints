@@ -50,7 +50,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     setIsMuted(nextMuted);
     setAudioMuted(nextMuted);
     if (!nextMuted) {
-      if (speciesMode === 'cat') playMeowSound(1.2);
+      if (speciesMode === 'cat') isDog ? playWoofSound( 1.2) : playMeowSound(
       else playWoofSound(1.2);
     }
   };
@@ -83,7 +83,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             onClick={() => {
               if (speciesMode === 'cat') playWoofSound(1.3);
-              else playMeowSound(1.3);
+              else isDog ? playWoofSound( 1.3) : playMeowSound(
               onToggleSpeciesMode();
             }}
             title={isDog ? 'Switch to The Catwalk (Cats)' : 'Switch to The Dog Park (Dogs)'}
@@ -124,7 +124,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Affiliate Market Quick Button */}
           <button
             onClick={() => {
-              playMeowSound(1.1);
+              isDog ? playWoofSound( 1.1) : playMeowSound(
               onOpenAffiliateModal();
             }}
             title="Affiliate Deals & Store"
@@ -137,7 +137,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Social Auth Login Quick Button */}
           <button
             onClick={() => {
-              playMeowSound(1.0);
+              isDog ? playWoofSound( 1.0) : playMeowSound(
               onOpenSocialAuthModal();
             }}
             title="Social Media Login"
@@ -151,7 +151,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             onClick={() => {
               if (isDog) playWoofSound(1.1);
-              else playMeowSound(1.1);
+              else isDog ? playWoofSound( 1.1) : playMeowSound(
               onOpenTranslatorModal();
             }}
             title={isDog ? 'AI Woof & Bark Translator' : 'AI Meow Translator'}
@@ -177,7 +177,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Create Post Button */}
           <button
             onClick={() => {
-              playMeowSound(1.3);
+              isDog ? playWoofSound( 1.3) : playMeowSound(
               onOpenCreateModal();
             }}
             className="p-2 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-colors"
@@ -238,7 +238,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       onClick={() => {
                         onSelectProfile(profile);
                         setShowProfileDropdown(false);
-                        playMeowSound(1.2);
+                        isDog ? playWoofSound( 1.2) : playMeowSound(
                       }}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-colors ${
                         profile.id === activeProfile.id ? 'brand-muted-bg opacity-50' : ''
@@ -280,7 +280,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     className="w-full py-2 brand-muted-bg brand-muted-text hover:opacity-80 transition-colors"
                   >
                     <Plus className="w-3.5 h-3.5" />
-                    <span>Add Another Cat Profile</span>
+                    <span>{isDog ? 'Add Another Dog Profile' : 'Add Another Cat Profile'}</span>
                   </button>
                 </div>
 

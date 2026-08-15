@@ -57,6 +57,7 @@ export const CatAnalyzerModal: React.FC<CatAnalyzerModalProps> = ({ isOpen, onCl
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           imageBase64: imageBase64 || null,
+          isDog,
           description: isDog
             ? `A good dog photo analysis for The Dog Park: ${imageUrl}`
             : `A majestic cat photo analysis for The Catwalk: ${imageUrl}`,

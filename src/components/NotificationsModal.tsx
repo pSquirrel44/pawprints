@@ -1,9 +1,10 @@
 import React from 'react';
 import { X, Bell, CheckCheck, Fish, MessageCircle, UserPlus } from 'lucide-react';
 import { NotificationItem } from '../types';
-import { playMeowSound } from '../utils/audio';
+import { playMeowSound, playWoofSound } from '../utils/audio';
 
 interface NotificationsModalProps {
+  isDog?: boolean;
   isOpen: boolean;
   onClose: () => void;
   notifications: NotificationItem[];
@@ -11,6 +12,7 @@ interface NotificationsModalProps {
 }
 
 export const NotificationsModal: React.FC<NotificationsModalProps> = ({
+  isDog = false,
   isOpen,
   onClose,
   notifications,
@@ -47,7 +49,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={() => {
-                playMeowSound(1.0);
+                playSound(1.0);
                 onMarkAllAsRead();
               }}
               className="flex items-center gap-1 text-[11px] font-semibold brand-color hover:underline"

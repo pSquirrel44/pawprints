@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { X, Play, Pause, Send, Heart } from 'lucide-react';
 import { Story } from '../types';
-import { playMeowSound, playTreatSound, playPurrSound } from '../utils/audio';
+import { playMeowSound, playTreatSound, playPurrSound, playWoofSound } from '../utils/audio';
 
 interface StoryViewerModalProps {
+  isDog?: boolean;
   story: Story | null;
   onClose: () => void;
   onNextStory?: () => void;
@@ -11,6 +12,7 @@ interface StoryViewerModalProps {
 }
 
 export const StoryViewerModal: React.FC<StoryViewerModalProps> = ({
+  isDog = false,
   story,
   onClose,
   onNextStory,
@@ -61,7 +63,7 @@ export const StoryViewerModal: React.FC<StoryViewerModalProps> = ({
   const handleSendReply = (e: React.FormEvent) => {
     e.preventDefault();
     if (!replyText.trim()) return;
-    playMeowSound(1.3);
+    playSound(1.3);
     handleSendReaction('🐾');
     setReplyText('');
   };
@@ -128,14 +130,14 @@ export const StoryViewerModal: React.FC<StoryViewerModalProps> = ({
             <div
               className="w-1/3 h-full cursor-pointer"
               onClick={() => {
-                playMeowSound(0.9);
+                playSound(0.9);
                 if (onPrevStory) onPrevStory();
               }}
             />
             <div
               className="w-2/3 h-full cursor-pointer"
               onClick={() => {
-                playMeowSound(1.1);
+                playSound(1.1);
                 if (onNextStory) onNextStory();
               }}
             />

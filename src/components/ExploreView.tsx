@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Search, Hash, Flame, Sparkles, MessageCircle, Heart, MapPin } from 'lucide-react';
 import { Post } from '../types';
-import { playMeowSound, playTreatSound } from '../utils/audio';
+import { playMeowSound, playTreatSound, playWoofSound } from '../utils/audio';
 
 interface ExploreViewProps {
+  isDog?: boolean;
   posts: Post[];
   searchQuery: string;
   onSearchChange: (q: string) => void;
@@ -11,7 +12,7 @@ interface ExploreViewProps {
   onSelectTag: (tag: string) => void;
 }
 
-const TRENDING_TAGS = [
+const CAT_(isDog ? DOG_TRENDING_TAGS : (isDog ? DOG_TRENDING_TAGS : CAT_TRENDING_TAGS)) = [
   '#catloaf',
   '#3amzoomies',
   '#wifiwarrior',
@@ -21,10 +22,25 @@ const TRENDING_TAGS = [
   '#sunbeammonarch',
   '#toebeans',
 ];
+const DOG_(isDog ? DOG_TRENDING_TAGS : (isDog ? DOG_TRENDING_TAGS : CAT_TRENDING_TAGS)) = [
+  '#zoomies',
+  '#goodboy',
+  '#fetchlife',
+  '#barklife',
+  '#stickcollector',
+  '#squirrelwatch',
+  '#bellyrubs',
+  '#walktime',
+  '#thedogpark',
+  '#pawprintnetwork',
+];
 
-const CATEGORIES = ['All', 'Kittens', 'Chonkers', 'Cosplay', 'Nap Champs', 'Loafing', 'Zoomies'];
+const CATEGORIES = isDog
+  ? ['All', 'Puppies', 'Chonky Dogs', 'Costumes', 'Nap Champs', 'Zoomies', 'Fetch']
+  : ['All', 'Kittens', 'Chonkers', 'Cosplay', 'Nap Champs', 'Loafing', 'Zoomies'];
 
 export const ExploreView: React.FC<ExploreViewProps> = ({
+  isDog = false,
   posts,
   searchQuery,
   onSearchChange,
@@ -57,13 +73,13 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
         <div className="relative z-10 space-y-2 max-w-lg">
           <div className="flex items-center gap-2 text-amber-200 text-xs font-bold uppercase tracking-wider">
             <Flame className="w-4 h-4 fill-amber-200" />
-            <span>Discover Feline Trends</span>
+            <span>{isDog ? 'Discover Canine Trends' : 'Discover Feline Trends'}</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
             isDog ? 'Explore the Woof-verse 🐾' : 'Explore the Purr-verse 🐾'
           </h2>
           <p className="text-xs sm:text-sm text-white/90">
-            Discover trending cat loaves, midnight zoomies, and regal sunbeam champions from cats worldwide.
+            {isDog ? 'Discover trending zoomies, stick finds, good boy moments, and squirrel alerts from dogs worldwide.' : 'Discover trending cat loaves, midnight zoomies, and regal sunbeam champions from cats worldwide.'}
           </p>
         </div>
       </div>
@@ -75,11 +91,11 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
           <span>Trending Cat Hashtags</span>
         </p>
         <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-          {TRENDING_TAGS.map((tag) => (
+          {(isDog ? DOG_TRENDING_TAGS : (isDog ? DOG_TRENDING_TAGS : CAT_TRENDING_TAGS)).map((tag) => (
             <button
               key={tag}
               onClick={() => {
-                playMeowSound(1.0);
+                playSound(1.0);
                 onSelectTag(tag);
               }}
               className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 ${
@@ -100,7 +116,7 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
           <button
             key={cat}
             onClick={() => {
-              playMeowSound(0.9);
+              playSound(0.9);
               setSelectedCategory(cat);
             }}
             className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all shrink-0 ${
@@ -119,7 +135,7 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
         <div className="text-center py-12 bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-8 space-y-3">
           <p className="text-4xl">🐱❓</p>
           <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-200">No cats found matching "{searchQuery}"</h3>
-          <p className="text-xs text-zinc-400">Try searching for #catloaf, #sunbeam, or clearing your filter.</p>
+          <p className="text-xs text-zinc-400">{isDog ? "Try searching for #zoomies, #goodboy, or clearing your filter." : "Try searching for #catloaf, #sunbeam, or clearing your filter."}</p>
           <button
             onClick={() => {
               onSearchChange('');

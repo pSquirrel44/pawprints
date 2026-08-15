@@ -187,8 +187,8 @@ export default function App() {
       badges: [
         {
           id: 'b_welcome',
-          title: 'The Catwalk Debut',
-          description: 'Official cat profile submitted to the The Catwalk by Pawprint Network!',
+          title: speciesMode === 'dog' ? 'The Dog Park Debut' : 'The Catwalk Debut',
+          description: speciesMode === 'dog' ? 'Official dog profile submitted to The Dog Park by Pawprint Network!' : 'Official cat profile submitted to The Catwalk by Pawprint Network!',
           icon: '👑',
           unlockedAt: 'Just now',
         },
@@ -210,7 +210,7 @@ export default function App() {
       actorName: newProfile.name,
       actorAvatar: newProfile.avatar,
       type: 'follow',
-      text: `Welcome @${newProfile.handle} to The Catwalk! Your profile is live.`,
+      text: `Welcome @${newProfile.handle} to ${speciesMode === 'dog' ? 'The Dog Park' : 'The Catwalk'}! Your profile is live.`,
       timestamp: 'Just now',
       isRead: false,
     };
@@ -432,7 +432,8 @@ export default function App() {
         
         {/* Left Desktop Sidebar */}
         <Sidebar
-          activeTab={activeTab}
+        isDog={speciesMode === 'dog'}
+                  activeTab={activeTab}
           onTabChange={setActiveTab}
           activeProfile={activeProfile}
           speciesMode={speciesMode}
@@ -452,7 +453,8 @@ export default function App() {
             <div className="space-y-6 pb-12">
               {/* Instagram-style Stories Header Bar */}
               <StoriesBar
-                stories={stories}
+isDog={speciesMode === \'dog\'}
+                                stories={stories}
                 activeProfile={activeProfile}
                 onSelectStory={(s) => setSelectedStory(s)}
                 onOpenCreateStoryModal={() => setIsCreateModalOpen(true)}
@@ -478,7 +480,8 @@ export default function App() {
           {/* Explore Tab View */}
           {activeTab === 'explore' && (
             <ExploreView
-              posts={posts}
+isDog={speciesMode === \'dog\'}
+                              posts={posts}
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
               onTreatPost={handleTreatPost}
@@ -526,7 +529,8 @@ export default function App() {
           {/* Profile Tab View */}
           {activeTab === 'profile' && (
             <ProfileView
-              profile={activeProfile}
+        isDog={speciesMode === 'dog'}
+                      profile={activeProfile}
               posts={posts}
               savedPosts={savedPostsList}
               isCurrentActiveProfile={true}
@@ -623,7 +627,8 @@ export default function App() {
 
       {/* Mobile Sticky Bottom Navigation */}
       <BottomNav
-        activeTab={activeTab}
+        isDog={speciesMode === 'dog'}
+                activeTab={activeTab}
         onTabChange={setActiveTab}
         onOpenCreateModal={() => setIsCreateModalOpen(true)}
         onOpenTranslatorModal={() => setIsTranslatorModalOpen(true)}
@@ -631,7 +636,8 @@ export default function App() {
 
       {/* MODALS */}
       <CreatePostModal
-        isOpen={isCreateModalOpen}
+        isDog={speciesMode === 'dog'}
+                isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         activeProfile={activeProfile}
         onCreatePost={handleCreatePost}
@@ -659,7 +665,8 @@ export default function App() {
       />
 
       <SocialShareModal
-        post={sharePostTarget}
+isDog={speciesMode === \'dog\'}
+                        post={sharePostTarget}
         isOpen={sharePostTarget !== null}
         onClose={() => setSharePostTarget(null)}
       />
@@ -677,7 +684,8 @@ export default function App() {
       />
 
       <NotificationsModal
-        isOpen={isNotificationsOpen}
+        isDog={speciesMode === 'dog'}
+                isOpen={isNotificationsOpen}
         onClose={() => setIsNotificationsOpen(false)}
         notifications={notifications}
         onMarkAllAsRead={handleMarkAllNotificationsRead}

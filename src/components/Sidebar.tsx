@@ -1,7 +1,7 @@
 import React from 'react';
 import { Home, Compass, PlusSquare, Bookmark, User, MessageSquare, Sparkles, Cat, ShoppingBag, UserCheck, Plus } from 'lucide-react';
 import { CatProfile } from '../types';
-import { playMeowSound } from '../utils/audio';
+import { playMeowSound, playWoofSound } from '../utils/audio';
 
 interface SidebarProps {
   activeTab: string;
@@ -14,6 +14,7 @@ interface SidebarProps {
   onOpenAnalyzerModal: () => void;
   onOpenAffiliateModal: () => void;
   onOpenSocialAuthModal: () => void;
+  isDog?: boolean;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -27,7 +28,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenAnalyzerModal,
   onOpenAffiliateModal,
   onOpenSocialAuthModal,
+  isDog = false,
 }) => {
+  const playSound = isDog ? playWoofSound : playMeowSound;
   const isDog = speciesMode === 'dog';
 
   const navItems = [
@@ -50,7 +53,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <button
                 key={item.id}
                 onClick={() => {
-                  playMeowSound(1.0);
+                  playSound(1.0);
                   onTabChange(item.id);
                 }}
                 className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-semibold transition-all ${
@@ -69,7 +72,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="pt-2 space-y-2">
             <button
               onClick={() => {
-                playMeowSound(1.2);
+                playSound(1.2);
                 onOpenCreateModal();
               }}
               className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl ${
@@ -84,7 +87,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
             <button
               onClick={() => {
-                playMeowSound(1.1);
+                playSound(1.1);
                 onOpenCreateProfileModal();
               }}
               className="w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 font-bold text-xs border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
@@ -103,7 +106,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           <button
             onClick={() => {
-              playMeowSound(1.1);
+              playSound(1.1);
               onOpenAffiliateModal();
             }}
             className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-50/80 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 border border-emerald-200/80 dark:border-emerald-800/50 transition-colors"
@@ -119,7 +122,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           <button
             onClick={() => {
-              playMeowSound(1.0);
+              playSound(1.0);
               onOpenSocialAuthModal();
             }}
             className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-amber-800 dark:text-amber-300 bg-amber-50/80 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/50 border border-amber-200/80 dark:border-amber-800/50 transition-colors"
@@ -140,7 +143,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           <button
             onClick={() => {
-              playMeowSound(1.1);
+              playSound(1.1);
               onOpenTranslatorModal();
             }}
             className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-purple-700 dark:text-purple-300 bg-purple-50/70 dark:bg-purple-950/30 hover:bg-purple-100/80 dark:hover:bg-purple-900/50 border border-purple-200/60 dark:border-purple-800/40 transition-colors"
@@ -156,7 +159,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           <button
             onClick={() => {
-              playMeowSound(1.0);
+              playSound(1.0);
               onOpenAnalyzerModal();
             }}
             className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-amber-700 dark:text-amber-300 bg-amber-50/70 dark:bg-amber-950/30 hover:bg-amber-100/80 dark:hover:bg-amber-900/50 border border-amber-200/60 dark:border-amber-800/40 transition-colors"
@@ -176,7 +179,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Profile Card Footer */}
       <div
         onClick={() => {
-          playMeowSound(1.0);
+          playSound(1.0);
           onTabChange('profile');
         }}
         className="flex items-center gap-3 p-3 mt-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"

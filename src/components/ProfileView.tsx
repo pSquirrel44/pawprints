@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { ShieldCheck, MapPin, Award, Bookmark, Grid, Plus, ShoppingBag, UserCheck, Check, Sparkles } from 'lucide-react';
 import { CatProfile, Post } from '../types';
-import { playMeowSound, playTreatSound } from '../utils/audio';
+import { playMeowSound, playTreatSound, playWoofSound } from '../utils/audio';
 
 interface ProfileViewProps {
+  isDog?: boolean;
   profile: CatProfile;
   posts: Post[];
   savedPosts: Post[];
@@ -16,6 +17,7 @@ interface ProfileViewProps {
 }
 
 export const ProfileView: React.FC<ProfileViewProps> = ({
+  isDog = false,
   profile,
   posts,
   savedPosts,
@@ -85,7 +87,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
                   <button
                     onClick={() => {
-                      playMeowSound(1.2);
+                      playSound(1.2);
                       setIsFollowing(!isFollowing);
                     }}
                     className={`flex-1 sm:flex-initial px-4 py-2.5 font-bold text-xs rounded-2xl transition-all ${
@@ -101,7 +103,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 <>
                   <button
                     onClick={() => {
-                      playMeowSound(1.2);
+                      playSound(1.2);
                       onOpenCreateModal();
                     }}
                     className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600 text-white font-bold text-xs rounded-2xl shadow-md shadow-rose-500/20 hover:opacity-95 transition-opacity"
@@ -112,18 +114,18 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
                   <button
                     onClick={() => {
-                      playMeowSound(1.1);
+                      playSound(1.1);
                       onOpenCreateProfileModal();
                     }}
                     className="flex-1 sm:flex-initial flex items-center justify-center gap-1 px-3.5 py-2.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 font-bold text-xs rounded-2xl border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
                   >
                     <Plus className="w-3.5 h-3.5 brand-color" />
-                    <span>Submit Cat Profile</span>
+                    <span>{isDog ? 'Submit Dog Profile' : 'Submit Cat Profile'}</span>
                   </button>
 
                   <button
                     onClick={() => {
-                      playMeowSound(1.1);
+                      playSound(1.1);
                       onOpenAffiliateModal();
                     }}
                     className="p-2.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 font-bold text-xs rounded-2xl border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors"
@@ -221,7 +223,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       <div className="flex border-b border-zinc-200 dark:border-zinc-800 text-xs font-bold">
         <button
           onClick={() => {
-            playMeowSound(1.0);
+            playSound(1.0);
             setActiveTab('posts');
           }}
           className={`flex items-center gap-2 py-3 px-6 border-b-2 transition-all ${
@@ -236,7 +238,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
         <button
           onClick={() => {
-            playMeowSound(1.0);
+            playSound(1.0);
             setActiveTab('saved');
           }}
           className={`flex items-center gap-2 py-3 px-6 border-b-2 transition-all ${
@@ -251,7 +253,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
         <button
           onClick={() => {
-            playMeowSound(1.0);
+            playSound(1.0);
             setActiveTab('badges');
           }}
           className={`flex items-center gap-2 py-3 px-6 border-b-2 transition-all ${

@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { X, ShoppingBag, ExternalLink, Copy, Check, DollarSign, Sparkles, ShieldCheck, Tag, TrendingUp, Gift, Award } from 'lucide-react';
 import { AFFILIATE_DEALS, DOG_AFFILIATE_DEALS } from '../data/affiliateData';
 import { CatProfile } from '../types';
-import { playMeowSound, playTreatSound, playPurrSound } from '../utils/audio';
+import { playMeowSound, playTreatSound, playPurrSound, playWoofSound } from '../utils/audio';
 
 interface AffiliateMarketplaceModalProps {
+  isDog?: boolean;
   isOpen: boolean;
   onClose: () => void;
   activeProfile: CatProfile;
@@ -12,6 +13,7 @@ interface AffiliateMarketplaceModalProps {
 }
 
 export const AffiliateMarketplaceModal: React.FC<AffiliateMarketplaceModalProps> = ({
+  isDog = false,
   isOpen,
   onClose,
   activeProfile,
@@ -28,7 +30,9 @@ export const AffiliateMarketplaceModal: React.FC<AffiliateMarketplaceModalProps>
   const [isRedeeming, setIsRedeeming] = useState(false);
   const [redeemedSuccess, setRedeemedSuccess] = useState<string | null>(null);
 
-  const categories = ['All', 'Food & Treats', 'Litter & Tech', 'Toys & Boxes', 'Grooming & Health'];
+  const categories = isDog
+    ? ['All', 'Food & Bones', 'Leashes & Tech', 'Toys & Balls', 'Grooming & Health']
+    : ['All', 'Food & Treats', 'Litter & Tech', 'Toys & Boxes', 'Grooming & Health'];
 
   const allDealsList = speciesMode === 'dog' ? [...DOG_AFFILIATE_DEALS, ...AFFILIATE_DEALS] : [...AFFILIATE_DEALS, ...DOG_AFFILIATE_DEALS];
 
@@ -44,7 +48,7 @@ export const AffiliateMarketplaceModal: React.FC<AffiliateMarketplaceModalProps>
   };
 
   const handleShopLink = (brandName: string, url: string) => {
-    playMeowSound(1.2);
+    playSound(1.2);
     setRedirectToast({ brand: brandName, url });
     // Simulate tracking click & earnings increase
     setTreatsCommission((prev) => prev + 10);
@@ -58,7 +62,7 @@ export const AffiliateMarketplaceModal: React.FC<AffiliateMarketplaceModalProps>
       setIsRedeeming(false);
       setRedeemedSuccess(`Successfully converted ${treatsCommission} {isDog ? 'Bones' : 'Fish Treats'} into a $28.40 ${providerName} e-Gift Card sent to ${activeProfile.handle}@instameow.app!`);
       setTreatsCommission(0);
-      playMeowSound(1.3);
+      playSound(1.3);
     }, 1500);
   };
 
@@ -98,7 +102,7 @@ export const AffiliateMarketplaceModal: React.FC<AffiliateMarketplaceModalProps>
           <div className="bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 flex items-center justify-between animate-in slide-in-from-top duration-200">
             <div className="flex items-center gap-2">
               <ExternalLink className="w-4 h-4" />
-              <span>Redirecting to {redirectToast.brand} with affiliate code <code className="bg-black/20 px-1.5 py-0.5 rounded">ref=thecatwalk_cat_affiliate</code></span>
+              <span>Redirecting to {redirectToast.brand} with affiliate code <code className="bg-black/20 px-1.5 py-0.5 rounded">isDog ? 'ref=thedogpark_dog_affiliate' : 'ref=thecatwalk_cat_affiliate'</code></span>
             </div>
             <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full">+10 Treat Clicks Logged!</span>
           </div>
@@ -189,7 +193,7 @@ export const AffiliateMarketplaceModal: React.FC<AffiliateMarketplaceModalProps>
                 key={cat}
                 onClick={() => {
                   setSelectedCategory(cat);
-                  playMeowSound(1.0);
+                  playSound(1.0);
                 }}
                 className={`px-3.5 py-2 rounded-2xl text-xs font-bold transition-all shrink-0 ${
                   selectedCategory === cat
@@ -286,7 +290,7 @@ export const AffiliateMarketplaceModal: React.FC<AffiliateMarketplaceModalProps>
               <span>Affiliate Integration Transparency Notice</span>
             </p>
             <p className="leading-relaxed">
-              The Catwalk partners with trusted cat suppliers (Amazon, Chewy, Litter-Robot, MeowBox, Inaba Churu). When you buy products using these affiliate links or promo codes, The Catwalk earns a small treat commission at no extra cost to you. This monetizes the platform and keeps it free for cats everywhere! 🐾
+              {isDog ? 'The Dog Park partners with trusted dog suppliers (Amazon, Chewy, BarkBox, KONG, PetSafe). When you buy using these affiliate links, The Dog Park earns a small bone commission at no extra cost to you. 🦴' : 'The Catwalk partners with trusted cat suppliers (Amazon, Chewy, Litter-Robot, MeowBox, Inaba Churu). When you buy using these affiliate links, The Catwalk earns a small treat commission at no extra cost to you. 🐾'}
             </p>
           </div>
 

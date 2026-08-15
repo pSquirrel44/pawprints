@@ -1,9 +1,10 @@
 import React from 'react';
 import { Plus } from 'lucide-react';
 import { Story, CatProfile } from '../types';
-import { playMeowSound } from '../utils/audio';
+import { playMeowSound, playWoofSound } from '../utils/audio';
 
 interface StoriesBarProps {
+  isDog?: boolean;
   stories: Story[];
   activeProfile: CatProfile;
   onSelectStory: (story: Story) => void;
@@ -11,6 +12,7 @@ interface StoriesBarProps {
 }
 
 export const StoriesBar: React.FC<StoriesBarProps> = ({
+  isDog = false,
   stories,
   activeProfile,
   onSelectStory,
@@ -23,7 +25,7 @@ export const StoriesBar: React.FC<StoriesBarProps> = ({
         {/* Your Story Button */}
         <div
           onClick={() => {
-            playMeowSound(1.2);
+            playSound(1.2);
             onOpenCreateStoryModal();
           }}
           className="flex flex-col items-center gap-1.5 cursor-pointer group"
@@ -49,7 +51,7 @@ export const StoriesBar: React.FC<StoriesBarProps> = ({
           <div
             key={story.id}
             onClick={() => {
-              playMeowSound(1.1);
+              playSound(1.1);
               onSelectStory(story);
             }}
             className="flex flex-col items-center gap-1.5 cursor-pointer group"
