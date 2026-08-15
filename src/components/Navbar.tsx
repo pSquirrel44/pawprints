@@ -50,7 +50,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     setIsMuted(nextMuted);
     setAudioMuted(nextMuted);
     if (!nextMuted) {
-      if (speciesMode === 'cat') isDog ? playWoofSound( 1.2) : playMeowSound(
+      if (speciesMode === 'cat') isDog ? playWoofSound(1.2) : playMeowSound(1.2);
       else playWoofSound(1.2);
     }
   };
@@ -83,7 +83,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             onClick={() => {
               if (speciesMode === 'cat') playWoofSound(1.3);
-              else isDog ? playWoofSound( 1.3) : playMeowSound(
+              else isDog ? playWoofSound(1.3) : playMeowSound(1.3);
               onToggleSpeciesMode();
             }}
             title={isDog ? 'Switch to The Catwalk (Cats)' : 'Switch to The Dog Park (Dogs)'}
@@ -124,7 +124,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Affiliate Market Quick Button */}
           <button
             onClick={() => {
-              isDog ? playWoofSound( 1.1) : playMeowSound(
+              isDog ? playWoofSound(1.1) : playMeowSound(1.1);
               onOpenAffiliateModal();
             }}
             title="Affiliate Deals & Store"
@@ -137,7 +137,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Social Auth Login Quick Button */}
           <button
             onClick={() => {
-              isDog ? playWoofSound( 1.0) : playMeowSound(
+              isDog ? playWoofSound(1.0) : playMeowSound(1.0);
               onOpenSocialAuthModal();
             }}
             title="Social Media Login"
@@ -151,7 +151,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             onClick={() => {
               if (isDog) playWoofSound(1.1);
-              else isDog ? playWoofSound( 1.1) : playMeowSound(
+              else isDog ? playWoofSound(1.1) : playMeowSound(1.1);
               onOpenTranslatorModal();
             }}
             title={isDog ? 'AI Woof & Bark Translator' : 'AI Meow Translator'}
@@ -177,7 +177,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Create Post Button */}
           <button
             onClick={() => {
-              isDog ? playWoofSound( 1.3) : playMeowSound(
+              isDog ? playWoofSound(1.3) : playMeowSound(1.3);
               onOpenCreateModal();
             }}
             className="p-2 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-colors"
@@ -238,7 +238,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       onClick={() => {
                         onSelectProfile(profile);
                         setShowProfileDropdown(false);
-                        isDog ? playWoofSound( 1.2) : playMeowSound(
+                        isDog ? playWoofSound(1.2) : playMeowSound(1.2);
                       }}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-colors ${
                         profile.id === activeProfile.id ? 'brand-muted-bg opacity-50' : ''
