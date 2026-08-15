@@ -71,7 +71,7 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
       {/* Trending Hashtags Bar */}
       <div className="space-y-2">
         <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
-          <Hash className="w-3.5 h-3.5 text-rose-500" />
+          <Hash className="w-3.5 h-3.5 brand-color 500" />
           <span>Trending Cat Hashtags</span>
         </p>
         <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
@@ -84,7 +84,7 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
               }}
               className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 ${
                 searchQuery.toLowerCase() === tag.toLowerCase()
-                  ? 'bg-rose-500 text-white shadow-xs'
+                  ? 'brand-bg-solid text-white shadow-xs'
                   : 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:border-rose-400'
               }`}
             >
@@ -125,7 +125,7 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
               onSearchChange('');
               setSelectedCategory('All');
             }}
-            className="px-4 py-2 bg-rose-500 text-white text-xs font-bold rounded-xl hover:bg-rose-600 transition-colors"
+            className="px-4 py-2 brand-bg-solid text-white text-xs font-bold rounded-xl hover:bg-rose-600 transition-colors"
           >
             Clear Search
           </button>
@@ -148,7 +148,7 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-3 text-white">
                 <div className="flex items-center justify-between text-[11px] font-bold">
                   <span className="truncate max-w-[100px]">@{post.authorHandle}</span>
-                  <span className="bg-rose-500/80 px-2 py-0.5 rounded-full text-[10px]">
+                  <span className="brand-bg-solid/80 px-2 py-0.5 rounded-full text-[10px]">
                     {post.category}
                   </span>
                 </div>

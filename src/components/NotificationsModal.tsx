@@ -23,7 +23,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
       case 'treat':
         return <span className="text-sm">🐟</span>;
       case 'comment':
-        return <MessageCircle className="w-3.5 h-3.5 text-rose-500" />;
+        return <MessageCircle className="w-3.5 h-3.5 brand-color" />;
       case 'follow':
         return <UserPlus className="w-3.5 h-3.5 text-purple-500" />;
       default:
@@ -38,7 +38,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
         {/* Header */}
         <div className="p-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Bell className="w-5 h-5 text-rose-500" />
+            <Bell className="w-5 h-5 brand-color" />
             <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
               {isDog ? 'Woof Activity' : 'Meow Activity'}
             </h2>
@@ -50,7 +50,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
                 playMeowSound(1.0);
                 onMarkAllAsRead();
               }}
-              className="flex items-center gap-1 text-[11px] font-semibold text-rose-500 hover:underline"
+              className="flex items-center gap-1 text-[11px] font-semibold brand-color hover:underline"
             >
               <CheckCheck className="w-3.5 h-3.5" />
               <span>Mark Read</span>
@@ -78,7 +78,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
                 className={`flex items-center gap-3 p-3 rounded-2xl transition-colors ${
                   item.isRead
                     ? 'bg-zinc-50/60 dark:bg-zinc-800/40'
-                    : 'bg-rose-50/70 dark:bg-rose-950/30 border border-rose-200/60 dark:border-rose-800/40'
+                    : 'brand-muted-bg 50/70 dark:brand-muted-bg 950/30 border border-rose-200/60 dark:border-rose-800/40'
                 }`}
               >
                 <div className="relative shrink-0">

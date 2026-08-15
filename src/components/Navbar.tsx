@@ -64,18 +64,14 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Brand Logo & Sister Platform Toggle */}
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2.5 cursor-pointer select-none shrink-0" onClick={() => onTabChange('feed')}>
-            <div className={`w-10 h-10 rounded-2xl ${isDog ? 'bg-gradient-to-tr from-amber-500 via-orange-500 to-sky-600' : 'bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600'} p-0.5 shadow-md flex items-center justify-center group hover:scale-105 transition-transform`}>
-              <div className="w-full h-full bg-white dark:bg-zinc-900 rounded-[14px] flex items-center justify-center">
-                {isDog ? (
-                  <Dog className="w-5 h-5 text-amber-500 group-hover:rotate-12 transition-transform" />
-                ) : (
-                  <Cat className="w-5 h-5 text-rose-500 group-hover:rotate-12 transition-transform" />
-                )}
-              </div>
-            </div>
+            <img
+              src={isDog ? '/icons/instawoof-icon.png' : '/icons/instameow-icon.png'}
+              alt={isDog ? 'instawoof' : 'instameow'}
+              className="w-10 h-10 rounded-2xl shadow-md hover:scale-105 transition-transform object-cover"
+            />
             <div className="hidden sm:block">
-              <h1 className={`text-xl font-bold bg-gradient-to-r ${isDog ? 'from-amber-600 via-orange-600 to-sky-600' : 'from-amber-600 via-rose-600 to-purple-600'} bg-clip-text text-transparent tracking-tight`}>
-                {isDog ? 'The Dog Park' : 'The Catwalk'}
+              <h1 className="text-xl font-bold brand-text tracking-tight">
+                {isDog ? 'instawoof' : 'instameow'}
               </h1>
               <p className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium -mt-1">
                 {isDog ? 'The Dog Park • Woof-sonal Social' : 'The Catwalk • Purr-sonal Social'}
@@ -117,7 +113,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   onTabChange('explore');
                 }
               }}
-              className="w-full pl-10 pr-4 py-2 text-xs sm:text-sm bg-zinc-100 dark:bg-zinc-800/80 border border-transparent focus:border-rose-400 dark:focus:border-rose-500 rounded-full outline-none transition-all text-zinc-800 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500"
+              className="w-full pl-10 pr-4 py-2 text-xs sm:text-sm bg-zinc-100 dark:bg-zinc-800/80 border border-transparent brand-focus rounded-full outline-none transition-all text-zinc-800 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500"
             />
           </div>
         </div>
@@ -214,7 +210,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 src={activeProfile.avatar}
                 alt={activeProfile.name}
                 referrerPolicy="no-referrer"
-                className="w-7 h-7 rounded-full object-cover ring-2 ring-rose-500/30"
+                className="w-7 h-7 rounded-full object-cover ring-2 ring-[var(--brand-ring)]/30"
               />
               <ChevronDown className="w-3.5 h-3.5 text-zinc-500" />
             </button>
@@ -228,7 +224,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       setShowProfileDropdown(false);
                       onOpenCreateProfileModal();
                     }}
-                    className="text-[11px] font-bold text-rose-500 hover:underline flex items-center gap-0.5"
+                    className="text-[11px] font-bold brand-tag hover:underline flex items-center gap-0.5"
                   >
                     <Plus className="w-3 h-3" />
                     <span>New Profile</span>
@@ -245,7 +241,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                         playMeowSound(1.2);
                       }}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-colors ${
-                        profile.id === activeProfile.id ? 'bg-rose-50/50 dark:bg-rose-950/20' : ''
+                        profile.id === activeProfile.id ? 'brand-muted-bg opacity-50' : ''
                       }`}
                     >
                       <img
@@ -260,7 +256,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                             {profile.name}
                           </span>
                           {profile.isVerified && (
-                            <ShieldCheck className="w-3 h-3 text-rose-500 shrink-0" />
+                            <ShieldCheck className="w-3 h-3 brand-color shrink-0" />
                           )}
                         </div>
                         <p className="text-[11px] text-zinc-400 truncate">
@@ -281,7 +277,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       setShowProfileDropdown(false);
                       onOpenCreateProfileModal();
                     }}
-                    className="w-full py-2 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 hover:bg-rose-100 dark:hover:bg-rose-900/50 transition-colors"
+                    className="w-full py-2 brand-muted-bg brand-muted-text hover:opacity-80 transition-colors"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>Add Another Cat Profile</span>

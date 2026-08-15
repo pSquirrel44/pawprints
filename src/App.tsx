@@ -101,6 +101,16 @@ export default function App() {
     setActiveProfileIdState(loadedCatActiveId);
   }, []);
 
+  // Toggle brand theme on <html> element whenever platform switches
+  useEffect(() => {
+    const root = document.documentElement;
+    if (speciesMode === 'dog') {
+      root.classList.add('theme-dog');
+    } else {
+      root.classList.remove('theme-dog');
+    }
+  }, [speciesMode]);
+
   const handleToggleSpeciesMode = () => {
     if (speciesMode === 'cat') {
       // Save Cat state before switching

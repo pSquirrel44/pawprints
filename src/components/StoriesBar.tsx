@@ -58,7 +58,7 @@ export const StoriesBar: React.FC<StoriesBarProps> = ({
               className={`w-16 h-16 rounded-full p-[2.5px] ${
                 story.isSeen
                   ? 'bg-zinc-300 dark:bg-zinc-700'
-                  : 'bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 animate-pulse'
+                  : 'bg-gradient-to-tr from-amber-500 via-rose-500 to-[var(--brand-3)] 600 animate-pulse'
               } flex items-center justify-center group-hover:scale-105 transition-transform shadow-xs`}
             >
               <div className="w-full h-full bg-white dark:bg-zinc-900 rounded-full p-0.5">

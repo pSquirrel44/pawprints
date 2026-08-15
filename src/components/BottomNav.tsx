@@ -23,7 +23,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
           onTabChange('feed');
         }}
         className={`flex flex-col items-center gap-1 text-xs font-medium ${
-          activeTab === 'feed' ? 'text-rose-500 font-bold' : 'text-zinc-500'
+          activeTab === 'feed' ? 'brand-color font-bold' : 'text-zinc-500'
         }`}
       >
         <Home className="w-5 h-5" />
@@ -36,7 +36,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
           onTabChange('explore');
         }}
         className={`flex flex-col items-center gap-1 text-xs font-medium ${
-          activeTab === 'explore' ? 'text-rose-500 font-bold' : 'text-zinc-500'
+          activeTab === 'explore' ? 'brand-color font-bold' : 'text-zinc-500'
         }`}
       >
         <Compass className="w-5 h-5" />
@@ -70,7 +70,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
           onTabChange('profile');
         }}
         className={`flex flex-col items-center gap-1 text-xs font-medium ${
-          activeTab === 'profile' ? 'text-rose-500 font-bold' : 'text-zinc-500'
+          activeTab === 'profile' ? 'brand-color font-bold' : 'text-zinc-500'
         }`}
       >
         <User className="w-5 h-5" />

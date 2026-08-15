@@ -55,11 +55,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 }}
                 className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-semibold transition-all ${
                   isActive
-                    ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800/40 shadow-xs'
+                    ? 'brand-muted-bg 50 dark:brand-muted-bg 950/40 brand-muted-text 600 dark:brand-muted-text 400 border border-rose-200 dark:border-rose-800/40 shadow-xs'
                     : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 hover:text-zinc-900 dark:hover:text-zinc-100'
                 }`}
               >
-                <Icon className={`w-5 h-5 ${isActive ? 'text-rose-500' : ''}`} />
+                <Icon className={`w-5 h-5 ${isActive ? 'brand-color' : ''}`} />
                 <span>{item.label}</span>
               </button>
             );

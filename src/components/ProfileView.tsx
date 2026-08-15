@@ -62,7 +62,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 className="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl object-cover ring-4 ring-white dark:ring-zinc-900 shadow-xl"
               />
               {profile.isVerified && (
-                <div className="absolute bottom-1 right-1 bg-rose-500 text-white p-1 rounded-full ring-2 ring-white dark:ring-zinc-900 shadow-md" title="Verified Sovereign Cat">
+                <div className="absolute bottom-1 right-1 brand-bg-solid text-white p-1 rounded-full ring-2 ring-white dark:ring-zinc-900 shadow-md" title="Verified Sovereign Cat">
                   <ShieldCheck className="w-4 h-4" />
                 </div>
               )}
@@ -91,7 +91,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                     className={`flex-1 sm:flex-initial px-4 py-2.5 font-bold text-xs rounded-2xl transition-all ${
                       isFollowing
                         ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200'
-                        : 'bg-rose-500 hover:bg-rose-600 text-white shadow-md shadow-rose-500/20'
+                        : 'brand-bg-solid hover:bg-rose-600 text-white shadow-md shadow-rose-500/20'
                     }`}
                   >
                     {isFollowing ? 'Serving Master' : '+ Serve Cat'}
@@ -117,7 +117,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                     }}
                     className="flex-1 sm:flex-initial flex items-center justify-center gap-1 px-3.5 py-2.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 font-bold text-xs rounded-2xl border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
                   >
-                    <Plus className="w-3.5 h-3.5 text-rose-500" />
+                    <Plus className="w-3.5 h-3.5 brand-color" />
                     <span>Submit Cat Profile</span>
                   </button>
 
@@ -172,7 +172,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             {/* Location & Box Preference Tags */}
             <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-500 dark:text-zinc-400 pt-1">
               <span className="flex items-center gap-1">
-                <MapPin className="w-3.5 h-3.5 text-rose-500" />
+                <MapPin className="w-3.5 h-3.5 brand-color" />
                 {profile.location}
               </span>
               <span>•</span>
@@ -226,7 +226,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           }}
           className={`flex items-center gap-2 py-3 px-6 border-b-2 transition-all ${
             activeTab === 'posts'
-              ? 'border-rose-500 text-rose-500'
+              ? 'border-rose-500 brand-color'
               : 'border-transparent text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200'
           }`}
         >
@@ -241,7 +241,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           }}
           className={`flex items-center gap-2 py-3 px-6 border-b-2 transition-all ${
             activeTab === 'saved'
-              ? 'border-rose-500 text-rose-500'
+              ? 'border-rose-500 brand-color'
               : 'border-transparent text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200'
           }`}
         >
@@ -256,7 +256,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           }}
           className={`flex items-center gap-2 py-3 px-6 border-b-2 transition-all ${
             activeTab === 'badges'
-              ? 'border-rose-500 text-rose-500'
+              ? 'border-rose-500 brand-color'
               : 'border-transparent text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200'
           }`}
         >
@@ -340,7 +340,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
                   {badge.description}
                 </p>
-                <span className="text-[10px] text-rose-500 font-semibold block mt-1">
+                <span className="text-[10px] brand-color font-semibold block mt-1">
                   Unlocked {badge.unlockedAt}
                 </span>
               </div>

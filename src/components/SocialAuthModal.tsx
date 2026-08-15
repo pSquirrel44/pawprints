@@ -29,7 +29,7 @@ export const SocialAuthModal: React.FC<SocialAuthModalProps> = ({
       <div className="relative w-full max-w-md bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
 
         {/* Header */}
-        <div className="p-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between bg-gradient-to-r from-amber-500 to-rose-500 text-white">
+        <div className="p-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between bg-gradient-to-r brand-bg text-white">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-5 h-5" />
             <h2 className="text-base font-bold">Your Account</h2>
@@ -44,7 +44,7 @@ export const SocialAuthModal: React.FC<SocialAuthModalProps> = ({
             {/* Clerk user info */}
             <div className="flex items-center gap-4 p-4 bg-zinc-50 dark:bg-zinc-800 rounded-2xl">
               {user?.imageUrl ? (
-                <img src={user.imageUrl} alt={user.fullName ?? ''} className="w-14 h-14 rounded-full object-cover ring-2 ring-amber-400" />
+                <img src={user.imageUrl} alt={user.fullName ?? ''} className="w-14 h-14 rounded-full object-cover ring-2 ring-[var(--brand-accent)]" />
               ) : (
                 <div className="w-14 h-14 rounded-full bg-amber-100 flex items-center justify-center">
                   <User className="w-7 h-7 text-amber-500" />
@@ -54,8 +54,8 @@ export const SocialAuthModal: React.FC<SocialAuthModalProps> = ({
                 <p className="font-bold text-zinc-900 dark:text-zinc-100 truncate">{user?.fullName ?? user?.username}</p>
                 <p className="text-xs text-zinc-500 truncate">{user?.primaryEmailAddress?.emailAddress}</p>
                 <div className="flex items-center gap-1 mt-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-                  <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">Verified Pawprint Member</span>
+                  <ShieldCheck className="w-3.5 h-3.5 text-green-500" />
+                  <span className="text-[11px] text-green-600 dark:text-green-400 font-semibold">Verified Pawprint Member</span>
                 </div>
               </div>
             </div>

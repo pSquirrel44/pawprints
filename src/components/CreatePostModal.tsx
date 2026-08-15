@@ -162,7 +162,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
         {/* Header */}
         <div className="p-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Cat className="w-5 h-5 text-rose-500" />
+            <Cat className="w-5 h-5 brand-color 500" />
             <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
               {isDog ? 'Create Bark Post' : 'Create Purr Post'}
             </h2>
@@ -243,7 +243,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
                       onClick={() => setSelectedFilter(filter.id)}
                       className={`px-2 py-1.5 text-xs font-semibold rounded-xl border text-center transition-all ${
                         selectedFilter === filter.id
-                          ? 'bg-rose-500 text-white border-rose-500 shadow-xs'
+                          ? 'brand-bg-solid text-white border-rose-500 shadow-xs'
                           : 'bg-zinc-50 dark:bg-zinc-800/60 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100'
                       }`}
                     >
@@ -348,7 +348,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
               placeholder={isDog ? 'Write a pawsome bark caption...' : 'Write a purr-fect meow caption...'}
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
-              className="w-full px-4 py-2.5 text-xs bg-zinc-50 dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-100 outline-none focus:border-rose-400"
+              className="w-full px-4 py-2.5 text-xs bg-zinc-50 dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-100 outline-none brand-focus 400"
             />
           </div>
 
@@ -369,7 +369,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full py-3.5 bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600 text-white font-bold text-sm rounded-2xl shadow-lg shadow-rose-500/20 hover:opacity-95 transition-opacity"
+            className="w-full py-3.5 bg-gradient-to-r from-amber-500 via-rose-500 to-[var(--brand-3)] 600 text-white font-bold text-sm rounded-2xl shadow-lg shadow-rose-500/20 hover:opacity-95 transition-opacity"
           >
             Post to The Catwalk 🐾
           </button>
