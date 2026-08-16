@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pawprint Network</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════
+   PAWPRINT NETWORK — BRAND LANDING PAGES
+   Tokens extracted directly from brand identity system
+═══════════════════════════════════════════════════════════ */
+
+/* ── Tokens ──────────────────────────────────────────────── */
+:root {
+  /* Parent brand */
+  --navy:   #1a1e3c;
+  --teal:   #2ec4b6;
+  --amber:  #fdb52a;
+  --pink:   #f050a0;
+  --cream:  #f5f7fa;
+
+  /* The Catwalk */
+  --cat-purple: #8b30e8;
+  --cat-pink:   #f050a0;
+  --cat-coral:  #f07040;
+  --cat-lav:    #f3eeff;
+  --cat-grad:   linear-gradient(135deg, #8b30e8 0%, #f050a0 55%, #f07040 100%);
+
+  /* The Dog Park */
+  --dog-teal:   #2ec4b6;
+  --dog-amber:  #fdb52a;
+  --dog-cream:  #fffbf0;
+  --dog-mint:   #3dd9c5;
+  --dog-grad:   linear-gradient(135deg, #0d9488 0%, #2ec4b6 40%, #3dd9c5 65%, #fdb52a 100%);
+
+  /* Type */
+  --font: 'Roboto', sans-serif;
+  --mono: 'Roboto Mono', monospace;
+}
+
+/* ── Reset ───────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font); background: var(--cream); color: var(--navy); overflow-x: hidden; }
+
+/* ── NAV ─────────────────────────────────────────────────── */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(26,30,60,.95);
+  backdrop-filter: blur(12px);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; height: 64px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.nav-logo .icons { display: flex; gap: 6px; }
+.nav-logo .icons img { width: 32px; height: 32px; border-radius: 8px; }
+.nav-logo span { font-weight: 900; font-size: 15px; color: #fff; letter-spacing: -.3px; }
+.nav-links { display: flex; gap: 4px; }
+.nav-btn {
+  padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 700;
+  cursor: pointer; border: 1.5px solid transparent; font-family: var(--font);
+  text-decoration: none; transition: all .18s;
+}
+.nav-btn.ghost { color: rgba(255,255,255,.7); border-color: rgba(255,255,255,.2); background: transparent; }
+.nav-btn.ghost:hover { color: #fff; border-color: rgba(255,255,255,.5); }
+.nav-btn.cat { background: var(--cat-grad); color: #fff; border: none; }
+.nav-btn.dog { background: var(--dog-grad); color: var(--navy); border: none; }
+
+/* ── PAGES ───────────────────────────────────────────────── */
+.page { min-height: 100vh; display: none; padding-top: 64px; }
+.page.active { display: block; }
+
+/* ════════════════════════════════════════════════════════════
+   PAGE 1 — PAWPRINT NETWORK (PARENT)
+════════════════════════════════════════════════════════════ */
+.parent-hero {
+  background: var(--navy);
+  min-height: calc(100vh - 64px);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 80px 24px;
+  position: relative; overflow: hidden;
+}
+.parent-hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 25% 60%, rgba(46,196,182,.12) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 75% 40%, rgba(240,80,160,.10) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 60% at 50% 80%, rgba(253,181,42,.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+.hero-icons { display: flex; gap: 16px; justify-content: center; margin-bottom: 32px; }
+.hero-icon { width: 72px; height: 72px; border-radius: 18px; transition: transform .3s; }
+.hero-icon:hover { transform: scale(1.08) rotate(-2deg); }
+.hero-eyebrow {
+  font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 3px;
+  color: var(--amber); text-transform: uppercase; margin-bottom: 20px;
+}
+.hero-h1 {
+  font-size: clamp(48px, 8vw, 96px); font-weight: 900; line-height: 1;
+  color: #fff; letter-spacing: -3px; margin-bottom: 12px;
+}
+.hero-h1 .amber { color: var(--amber); }
+.hero-sub {
+  font-size: clamp(16px, 2.5vw, 20px); color: rgba(255,255,255,.55);
+  max-width: 520px; line-height: 1.6; margin: 0 auto 48px;
+}
+.hero-ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.cta-btn {
+  padding: 14px 28px; border-radius: 32px; font-size: 14px; font-weight: 700;
+  cursor: pointer; font-family: var(--font); text-decoration: none;
+  transition: all .2s; display: inline-flex; align-items: center; gap: 8px; border: none;
+}
+.cta-cat { background: var(--cat-grad); color: #fff; }
+.cta-cat:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(139,48,232,.4); }
+.cta-dog { background: var(--dog-grad); color: var(--navy); }
+.cta-dog:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(46,196,182,.4); }
+.cta-ghost { background: transparent; color: rgba(255,255,255,.7); border: 1.5px solid rgba(255,255,255,.25); }
+.cta-ghost:hover { color: #fff; border-color: rgba(255,255,255,.6); transform: translateY(-2px); }
+
+/* Platform cards */
+.platform-strip {
+  background: var(--cream); padding: 100px 24px;
+}
+.strip-inner { max-width: 1100px; margin: 0 auto; }
+.section-eyebrow {
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  letter-spacing: 3px; text-transform: uppercase; margin-bottom: 12px;
+}
+.section-eyebrow.teal { color: var(--teal); }
+.section-eyebrow.pink { color: var(--cat-pink); }
+.section-eyebrow.amber { color: var(--amber); }
+.section-h2 {
+  font-size: clamp(32px, 5vw, 52px); font-weight: 900; letter-spacing: -2px;
+  margin-bottom: 16px; color: var(--navy);
+}
+.section-body { font-size: 17px; color: #555; max-width: 520px; line-height: 1.65; margin-bottom: 60px; }
+.platform-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.pcard {
+  border-radius: 24px; padding: 40px; position: relative; overflow: hidden;
+  min-height: 340px; display: flex; flex-direction: column; justify-content: flex-end;
+}
+.pcard-cat { background: var(--cat-grad); color: #fff; }
+.pcard-dog { background: var(--dog-grad); color: var(--navy); }
+.pcard-icon { width: 56px; height: 56px; border-radius: 14px; margin-bottom: 24px; }
+.pcard-label {
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  letter-spacing: 3px; text-transform: uppercase;
+  color: rgba(255,255,255,.6); margin-bottom: 8px;
+}
+.pcard-dog .pcard-label { color: rgba(26,30,60,.5); }
+.pcard-title { font-size: 32px; font-weight: 900; letter-spacing: -1px; margin-bottom: 8px; }
+.pcard-tagline { font-size: 14px; opacity: .75; margin-bottom: 24px; font-style: italic; }
+.pcard-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.ptag {
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  padding: 4px 10px; border-radius: 20px; letter-spacing: 1px;
+  background: rgba(255,255,255,.15); color: rgba(255,255,255,.9);
+}
+.pcard-dog .ptag { background: rgba(26,30,60,.12); color: var(--navy); }
+.pcard-cta {
+  position: absolute; top: 32px; right: 32px;
+  background: rgba(255,255,255,.2); color: #fff;
+  padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700;
+  text-decoration: none; backdrop-filter: blur(8px); transition: background .2s; border: none; cursor: pointer; font-family: var(--font);
+}
+.pcard-dog .pcard-cta { background: rgba(26,30,60,.15); color: var(--navy); }
+.pcard-cta:hover { background: rgba(255,255,255,.35); }
+.pcard-dog .pcard-cta:hover { background: rgba(26,30,60,.3); }
+
+/* DNA strip */
+.dna-strip { background: var(--navy); padding: 80px 24px; }
+.dna-inner { max-width: 1100px; margin: 0 auto; }
+.dna-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 48px; }
+.dna-cell {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.06);
+  padding: 32px; border-radius: 4px;
+}
+.dna-cell:first-child { border-radius: 20px 4px 4px 4px; }
+.dna-cell:last-child { border-radius: 4px 4px 20px 4px; }
+.dna-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: var(--amber); display: flex; align-items: center; justify-content: center;
+  font-size: 18px; margin-bottom: 20px;
+}
+.dna-title { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+.dna-sub { font-size: 13px; color: rgba(255,255,255,.4); font-family: var(--mono); }
+
+/* Palettes */
+.palette-row { display: flex; gap: 8px; margin-top: 48px; flex-wrap: wrap; }
+.swatch { height: 64px; border-radius: 12px; flex: 1; min-width: 80px; display: flex; align-items: flex-end; padding: 8px 10px; }
+.swatch-label { font-family: var(--mono); font-size: 10px; font-weight: 700; }
+
+/* Footer */
+.site-footer {
+  background: var(--navy); border-top: 1px solid rgba(255,255,255,.06);
+  padding: 40px 24px; text-align: center;
+  font-family: var(--mono); font-size: 11px; color: rgba(255,255,255,.3);
+  letter-spacing: 1px;
+}
+.site-footer a { color: var(--amber); text-decoration: none; }
+
+/* ════════════════════════════════════════════════════════════
+   PAGE 2 — THE CATWALK
+════════════════════════════════════════════════════════════ */
+.cat-hero {
+  background: var(--navy);
+  min-height: calc(100vh - 64px);
+  display: grid; grid-template-columns: 1fr 1fr;
+  align-items: center; gap: 0;
+  position: relative; overflow: hidden;
+}
+.cat-hero::after {
+  content: '';
+  position: absolute; top: -40%; right: -10%; width: 70%; height: 140%;
+  background: var(--cat-grad);
+  clip-path: polygon(15% 0%, 100% 0%, 100% 100%, 0% 100%);
+  opacity: .12; pointer-events: none;
+}
+.cat-hero-left { padding: 80px 60px; position: relative; z-index: 2; }
+.cat-hero-right {
+  position: relative; z-index: 2; display: flex; align-items: center; justify-content: center;
+  padding: 80px 40px;
+}
+
+/* Phone mockup */
+.phone {
+  width: 240px; height: 480px;
+  background: #0d0d1a;
+  border-radius: 36px;
+  border: 2px solid rgba(255,255,255,.12);
+  overflow: hidden; position: relative;
+  box-shadow: 0 40px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(139,48,232,.3);
+  transform: rotate(4deg);
+  transition: transform .4s;
+}
+.phone:hover { transform: rotate(0deg) scale(1.02); }
+.phone-notch {
+  width: 80px; height: 24px; background: #0d0d1a;
+  border-radius: 0 0 14px 14px; margin: 0 auto;
+  position: relative; z-index: 2;
+}
+.phone-screen { position: absolute; inset: 0; }
+.phone-gradient-bg { width: 100%; height: 100%; background: var(--cat-grad); opacity: .08; }
+.phone-post {
+  position: absolute; bottom: 20px; left: 12px; right: 12px;
+  background: rgba(255,255,255,.06); border-radius: 16px; padding: 12px;
+  backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,.08);
+}
+.phone-post-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--cat-grad); margin-bottom: 8px;
+  display: flex; align-items: center; justify-content: center; font-size: 14px;
+}
+.phone-post-name { font-size: 11px; font-weight: 700; color: #fff; }
+.phone-post-loc { font-size: 9px; color: rgba(255,255,255,.4); font-family: var(--mono); }
+.phone-post-img {
+  width: 100%; height: 100px; border-radius: 10px; margin: 8px 0;
+  background: var(--cat-grad); display: flex; align-items: center; justify-content: center;
+  font-size: 32px;
+}
+.phone-post-caption { font-size: 9px; color: rgba(255,255,255,.6); line-height: 1.4; }
+.phone-actions {
+  display: flex; gap: 8px; align-items: center; margin-top: 8px;
+}
+.phone-pill {
+  background: rgba(139,48,232,.3); color: rgba(255,255,255,.8);
+  font-size: 8px; font-weight: 700; padding: 3px 8px; border-radius: 10px;
+  font-family: var(--mono);
+}
+.phone-floating {
+  position: absolute; top: 60px; left: 12px; right: 12px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.phone-story-row { display: flex; gap: 6px; padding: 4px 0; }
+.phone-story {
+  width: 38px; text-align: center;
+}
+.phone-story-ring {
+  width: 36px; height: 36px; border-radius: 50%; border: 2px solid;
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+  margin: 0 auto 2px;
+}
+.phone-story-ring.cat-ring { border-color: var(--cat-purple); }
+.phone-story-name { font-size: 7px; color: rgba(255,255,255,.4); font-family: var(--mono); }
+
+/* Cat features */
+.cat-features {
+  background: #0d0d1a; padding: 100px 24px;
+}
+.cat-features-inner { max-width: 1100px; margin: 0 auto; }
+.feature-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; margin-top: 60px; background: rgba(255,255,255,.06); border-radius: 24px; overflow: hidden; }
+.feature-cell {
+  background: #0d0d1a; padding: 40px 32px;
+  transition: background .2s;
+}
+.feature-cell:hover { background: #13132a; }
+.feature-num {
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  color: var(--cat-purple); letter-spacing: 2px; margin-bottom: 20px;
+}
+.feature-title { font-size: 20px; font-weight: 900; color: #fff; margin-bottom: 10px; letter-spacing: -.5px; }
+.feature-body { font-size: 14px; color: rgba(255,255,255,.4); line-height: 1.7; }
+
+/* Cat CTA section */
+.cat-cta { background: var(--cat-grad); padding: 120px 24px; text-align: center; }
+.cat-cta h2 { font-size: clamp(40px,6vw,72px); font-weight: 900; color: #fff; letter-spacing: -2px; margin-bottom: 16px; }
+.cat-cta p { font-size: 18px; color: rgba(255,255,255,.7); max-width: 480px; margin: 0 auto 40px; }
+.cta-white {
+  background: #fff; color: var(--cat-purple);
+  padding: 16px 36px; border-radius: 32px; font-size: 15px; font-weight: 900;
+  text-decoration: none; display: inline-block; transition: all .2s; border: none; cursor: pointer; font-family: var(--font);
+}
+.cta-white:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(0,0,0,.25); }
+
+/* ════════════════════════════════════════════════════════════
+   PAGE 3 — THE DOG PARK
+════════════════════════════════════════════════════════════ */
+.dog-hero {
+  background: var(--dog-cream);
+  min-height: calc(100vh - 64px);
+  display: grid; grid-template-columns: 1fr 1fr;
+  align-items: center; overflow: hidden; position: relative;
+}
+.dog-hero::before {
+  content: '';
+  position: absolute; bottom: -20%; left: -10%; width: 60%; height: 120%;
+  background: var(--dog-grad); border-radius: 50%; opacity: .07; pointer-events: none;
+}
+.dog-hero-left { padding: 80px 60px; position: relative; z-index: 2; }
+.dog-hero-right { position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; padding: 60px; }
+
+/* Dog card stack */
+.card-stack { position: relative; width: 280px; height: 380px; }
+.dog-card {
+  position: absolute; border-radius: 24px; overflow: hidden;
+  box-shadow: 0 20px 60px rgba(26,30,60,.15);
+  transition: transform .3s;
+}
+.dog-card:nth-child(1) {
+  width: 220px; height: 280px; left: 40px; top: 0;
+  background: var(--dog-grad); transform: rotate(-6deg);
+  display: flex; align-items: center; justify-content: center; font-size: 64px;
+}
+.dog-card:nth-child(2) {
+  width: 240px; height: 300px; left: 20px; top: 60px;
+  background: var(--navy); transform: rotate(2deg);
+  display: flex; flex-direction: column; padding: 24px;
+}
+.dog-card:nth-child(3) {
+  width: 180px; height: 200px; left: 80px; top: 160px;
+  background: #fff; transform: rotate(-2deg);
+  display: flex; align-items: center; justify-content: center; font-size: 48px;
+}
+.card-stack:hover .dog-card:nth-child(1) { transform: rotate(-8deg) translateY(-8px); }
+.card-stack:hover .dog-card:nth-child(2) { transform: rotate(3deg) translateY(-4px); }
+.card-stack:hover .dog-card:nth-child(3) { transform: rotate(-1deg) translateY(-12px); }
+.dog-card-inner { padding: 0; }
+.dog-stat { font-size: 11px; font-family: var(--mono); color: rgba(255,255,255,.4); margin-bottom: 4px; }
+.dog-big { font-size: 36px; font-weight: 900; color: #fff; }
+.dog-label { font-size: 12px; color: rgba(255,255,255,.5); font-family: var(--mono); letter-spacing: 1px; }
+
+/* Dog feature strip */
+.dog-features { background: var(--navy); padding: 100px 24px; }
+.dog-features-inner { max-width: 1100px; margin: 0 auto; }
+.dog-feature-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 60px;
+}
+.dog-feature-card {
+  border-radius: 20px; padding: 40px; border: 1px solid rgba(255,255,255,.06);
+  background: rgba(255,255,255,.03); transition: border-color .2s, background .2s;
+}
+.dog-feature-card:hover { border-color: rgba(46,196,182,.3); background: rgba(46,196,182,.04); }
+.dog-feature-emoji { font-size: 36px; margin-bottom: 20px; display: block; }
+.dog-feature-title { font-size: 22px; font-weight: 900; color: #fff; letter-spacing: -.5px; margin-bottom: 10px; }
+.dog-feature-body { font-size: 14px; color: rgba(255,255,255,.4); line-height: 1.7; }
+.dog-feature-tag {
+  display: inline-block; margin-top: 16px;
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  color: var(--dog-teal); letter-spacing: 2px; text-transform: uppercase;
+}
+
+/* Dog CTA */
+.dog-cta {
+  background: var(--dog-cream); padding: 120px 24px; text-align: center;
+  position: relative; overflow: hidden;
+}
+.dog-cta::before {
+  content: '';
+  position: absolute; top: -50%; left: 50%; transform: translateX(-50%);
+  width: 800px; height: 800px; border-radius: 50%;
+  background: var(--dog-grad); opacity: .08; pointer-events: none;
+}
+.dog-cta h2 { font-size: clamp(40px,6vw,72px); font-weight: 900; color: var(--navy); letter-spacing: -2px; margin-bottom: 16px; position: relative; }
+.dog-cta p { font-size: 18px; color: rgba(26,30,60,.5); max-width: 480px; margin: 0 auto 40px; position: relative; }
+.cta-navy {
+  background: var(--navy); color: #fff;
+  padding: 16px 36px; border-radius: 32px; font-size: 15px; font-weight: 900;
+  text-decoration: none; display: inline-block; transition: all .2s; border: none; cursor: pointer; font-family: var(--font);
+  position: relative;
+}
+.cta-navy:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(26,30,60,.3); }
+
+/* ── Shared ──────────────────────────────────────────────── */
+.dark-eyebrow { color: rgba(255,255,255,.4); }
+.dark-eyebrow.amber { color: var(--amber); }
+.dark-eyebrow.teal  { color: var(--dog-teal); }
+.dark-eyebrow.pink  { color: var(--cat-pink); }
+
+h1.display-white { font-size: clamp(44px,7vw,80px); font-weight: 900; color: #fff; letter-spacing: -3px; line-height: 1; margin-bottom: 16px; }
+h1.display-dark  { font-size: clamp(44px,7vw,80px); font-weight: 900; color: var(--navy); letter-spacing: -3px; line-height: 1; margin-bottom: 16px; }
+.grad-text-cat { background: var(--cat-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.grad-text-dog { background: var(--dog-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+p.sub-white { font-size: clamp(15px,2vw,18px); color: rgba(255,255,255,.5); max-width: 460px; line-height: 1.65; margin-bottom: 40px; }
+p.sub-dark  { font-size: clamp(15px,2vw,18px); color: rgba(26,30,60,.55); max-width: 460px; line-height: 1.65; margin-bottom: 40px; }
+
+.keyword-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px; }
+.keyword {
+  font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; padding: 5px 12px; border-radius: 20px;
+}
+.keyword.cat { background: rgba(139,48,232,.2); color: var(--cat-purple); border: 1px solid rgba(139,48,232,.3); }
+.keyword.dog { background: rgba(46,196,182,.15); color: var(--dog-teal); border: 1px solid rgba(46,196,182,.3); }
+.keyword.parent { background: rgba(253,181,42,.12); color: var(--amber); border: 1px solid rgba(253,181,42,.3); }
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .cat-hero, .dog-hero { grid-template-columns: 1fr; }
+  .cat-hero-right, .dog-hero-right { display: none; }
+  .cat-hero-left, .dog-hero-left { padding: 60px 24px; }
+  .platform-cards { grid-template-columns: 1fr; }
+  .feature-grid { grid-template-columns: 1fr; }
+  .dna-grid { grid-template-columns: 1fr; }
+  .dog-feature-row { grid-template-columns: 1fr; }
+  .nav-links { gap: 2px; }
+  .nav-btn { padding: 6px 10px; font-size: 11px; }
+}
+
+/* ── Scroll reveal ───────────────────────────────────────── */
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
+.reveal.visible { opacity: 1; transform: none; }
+</style>
+</head>
+<body>
+
+<!-- ── NAV ──────────────────────────────────────────────────── -->
+<nav class="nav">
+  <a href="#" class="nav-logo" onclick="showPage('parent')">
+    <div class="icons">
+      <img src="/icons/instawoof-icon.png" alt="instawoof" onerror="this.style='width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#2ec4b6,#fdb52a);display:flex;align-items:center;justify-content:center;font-size:16px'">
+      <img src="/icons/instameow-icon.png" alt="instameow" onerror="this.style='width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#8b30e8,#f050a0,#f07040);'">
+    </div>
+    <span>Pawprint Network</span>
+  </a>
+  <div class="nav-links">
+    <button class="nav-btn ghost" onclick="showPage('parent')">Parent Brand</button>
+    <button class="nav-btn cat" onclick="showPage('cat')">The Catwalk</button>
+    <button class="nav-btn dog" onclick="showPage('dog')">The Dog Park</button>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════════
+     PAGE 1 — PAWPRINT NETWORK
+══════════════════════════════════════════════════════════ -->
+<div id="page-parent" class="page active">
+
+  <!-- Hero -->
+  <section class="parent-hero">
+    <div class="hero-icons">
+      <img class="hero-icon" src="/icons/instawoof-icon.png" alt="instawoof"
+        onerror="this.outerHTML='<div style=\'width:72px;height:72px;border-radius:18px;background:linear-gradient(135deg,#0d9488,#2ec4b6,#fdb52a);display:flex;align-items:center;justify-content:center;font-size:32px\'>🐶</div>'">
+      <img class="hero-icon" src="/icons/instameow-icon.png" alt="instameow"
+        onerror="this.outerHTML='<div style=\'width:72px;height:72px;border-radius:18px;background:linear-gradient(135deg,#8b30e8,#f050a0,#f07040);display:flex;align-items:center;justify-content:center;font-size:32px\'>🐱</div>'">
+    </div>
+    <p class="hero-eyebrow">Brand Identity System</p>
+    <h1 class="hero-h1">Pawprint<br><span class="amber">Network</span></h1>
+    <p class="hero-sub">The home of pet culture online — a parent brand connecting two beloved communities across The Catwalk and The Dog Park.</p>
+    <div class="hero-ctas">
+      <button class="cta-btn cta-cat" onclick="showPage('cat')">🐱 The Catwalk</button>
+      <button class="cta-btn cta-dog" onclick="showPage('dog')">🐶 The Dog Park</button>
+      <a href="#" class="cta-btn cta-ghost">Learn More</a>
+    </div>
+  </section>
+
+  <!-- Platform cards -->
+  <section class="platform-strip">
+    <div class="strip-inner">
+      <p class="section-eyebrow teal">02 — Platforms</p>
+      <h2 class="section-h2">Two worlds.<br>One network.</h2>
+      <p class="section-body">Where every paw leaves a mark. The trusted home of social pet media, connecting The Catwalk and The Dog Park under one roof.</p>
+
+      <div class="platform-cards">
+        <div class="pcard pcard-cat reveal">
+          <button class="pcard-cta" onclick="showPage('cat')">Visit →</button>
+          <div>
+            <img class="pcard-icon" src="/icons/instameow-icon.png" alt="The Catwalk"
+              onerror="this.outerHTML='<div style=\'width:56px;height:56px;border-radius:14px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:24px\'>🐱</div>'">
+            <p class="pcard-label">Cat Platform · instameow.app</p>
+            <h3 class="pcard-title">The Catwalk</h3>
+            <p class="pcard-tagline">"Grace in every frame."</p>
+            <div class="pcard-tags">
+              <span class="ptag">EDITORIAL</span>
+              <span class="ptag">STARK</span>
+              <span class="ptag">CURATED</span>
+              <span class="ptag">ELECTRIC</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pcard pcard-dog reveal">
+          <button class="pcard-cta" onclick="showPage('dog')">Visit →</button>
+          <div>
+            <img class="pcard-icon" src="/icons/instawoof-icon.png" alt="The Dog Park"
+              onerror="this.outerHTML='<div style=\'width:56px;height:56px;border-radius:14px;background:rgba(26,30,60,.15);display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:24px\'>🐶</div>'">
+            <p class="pcard-label">Dog Platform · instawoof.app</p>
+            <h3 class="pcard-title">The Dog Park</h3>
+            <p class="pcard-tagline">"Life is better with dogs."</p>
+            <div class="pcard-tags">
+              <span class="ptag">ENERGETIC</span>
+              <span class="ptag">JOYFUL</span>
+              <span class="ptag">SUNNY</span>
+              <span class="ptag">PLAYFUL</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DNA -->
+  <section class="dna-strip">
+    <div class="dna-inner">
+      <p class="section-eyebrow" style="color:var(--amber)">04 — System</p>
+      <h2 class="section-h2" style="color:#fff">How They Connect</h2>
+      <p class="section-body" style="color:rgba(255,255,255,.4)">One typographic system, one icon mark language, two distinct worlds.</p>
+      <div class="dna-grid">
+        <div class="dna-cell reveal">
+          <div class="dna-icon">Aa</div>
+          <p class="dna-title">Shared Typeface</p>
+          <p class="dna-sub">Roboto · Black / Regular / Mono</p>
+        </div>
+        <div class="dna-cell reveal">
+          <div class="dna-icon">◇</div>
+          <p class="dna-title">Shared Icon Language</p>
+          <p class="dna-sub">Rounded square · gradient fill · navy mark</p>
+        </div>
+        <div class="dna-cell reveal">
+          <div class="dna-icon">○</div>
+          <p class="dna-title">Shared DNA</p>
+          <p class="dna-sub">Diamond cutout · paw connection · navy border</p>
+        </div>
+      </div>
+
+      <!-- Color palette -->
+      <div style="margin-top:60px">
+        <p style="font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:3px;color:var(--amber);text-transform:uppercase;margin-bottom:20px">Color Palette</p>
+        <div class="palette-row">
+          <div class="swatch" style="background:#1a1e3c;flex:1.5"><span class="swatch-label" style="color:rgba(255,255,255,.5)">#1a1e3c<br><span style="opacity:.6">NAVY</span></span></div>
+          <div class="swatch" style="background:#2ec4b6"><span class="swatch-label" style="color:rgba(26,30,60,.7)">#2ec4b6<br><span style="opacity:.6">TEAL</span></span></div>
+          <div class="swatch" style="background:#fdb52a"><span class="swatch-label" style="color:rgba(26,30,60,.7)">#fdb52a<br><span style="opacity:.6">AMBER</span></span></div>
+          <div class="swatch" style="background:#f050a0"><span class="swatch-label" style="color:rgba(255,255,255,.8)">#f050a0<br><span style="opacity:.7">PINK</span></span></div>
+          <div class="swatch" style="background:#f5f7fa;border:1px solid rgba(26,30,60,.08)"><span class="swatch-label" style="color:rgba(26,30,60,.4)">#f5f7fa<br><span style="opacity:.6">CREAM</span></span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    © 2025 Pawprint Network LLC · <a href="#">instameow.app</a> · <a href="#">instawoof.app</a>
+  </footer>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     PAGE 2 — THE CATWALK
+══════════════════════════════════════════════════════════ -->
+<div id="page-cat" class="page">
+
+  <!-- Hero -->
+  <section class="cat-hero">
+    <div class="cat-hero-left">
+      <p class="section-eyebrow" style="color:var(--cat-purple);margin-bottom:16px;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase">02 — Platform · instameow.app</p>
+      <div class="keyword-row">
+        <span class="keyword cat">EDITORIAL</span>
+        <span class="keyword cat">STARK</span>
+        <span class="keyword cat">CURATED</span>
+        <span class="keyword cat">ELECTRIC</span>
+      </div>
+      <h1 class="display-white">The<br><span class="grad-text-cat">Catwalk</span></h1>
+      <p class="sub-white">High fashion meets feline grace. Stark, editorial, electric — where every post is a runway moment.</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <a href="https://instameow.app" class="cta-btn" style="background:var(--cat-grad);color:#fff">Join The Catwalk</a>
+        <button class="cta-btn cta-ghost" onclick="showPage('parent')">← Back</button>
+      </div>
+    </div>
+
+    <div class="cat-hero-right">
+      <!-- Phone mockup -->
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="phone-gradient-bg"></div>
+          <div class="phone-floating">
+            <div class="phone-story-row">
+              <div class="phone-story">
+                <div class="phone-story-ring cat-ring">🐱</div>
+                <div class="phone-story-name">fluffy</div>
+              </div>
+              <div class="phone-story">
+                <div class="phone-story-ring cat-ring">😼</div>
+                <div class="phone-story-name">chairman</div>
+              </div>
+              <div class="phone-story">
+                <div class="phone-story-ring cat-ring">🐈</div>
+                <div class="phone-story-name">void99</div>
+              </div>
+              <div class="phone-story">
+                <div class="phone-story-ring cat-ring">🦁</div>
+                <div class="phone-story-name">sir_iii</div>
+              </div>
+            </div>
+          </div>
+          <div class="phone-post">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+              <div class="phone-post-avatar">😼</div>
+              <div>
+                <div class="phone-post-name">chairman_meow</div>
+                <div class="phone-post-loc">📍 The Armchair</div>
+              </div>
+            </div>
+            <div class="phone-post-img">😼</div>
+            <div class="phone-post-caption">day 2,847 of plotting. the pattern is almost complete 😤🐾</div>
+            <div class="phone-actions">
+              <span class="phone-pill">🐟 47.2K</span>
+              <span class="phone-pill">💬 3.4K</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="cat-features">
+    <div class="cat-features-inner">
+      <p style="font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:3px;color:var(--cat-purple);text-transform:uppercase;margin-bottom:16px">Platform Features</p>
+      <h2 class="section-h2" style="color:#fff">Built for cats.<br>Run by cats.</h2>
+      <div class="feature-grid">
+        <div class="feature-cell reveal">
+          <p class="feature-num">01</p>
+          <h3 class="feature-title">Fish Treat Economy</h3>
+          <p class="feature-body">Like posts by sending fish treats. The purr-fect social currency for feline influencers and their admirers.</p>
+        </div>
+        <div class="feature-cell reveal">
+          <p class="feature-num">02</p>
+          <h3 class="feature-title">Gemini Meow Translator</h3>
+          <p class="feature-body">AI-powered translation between human speech and cat language. Finally understand what they've been saying all along.</p>
+        </div>
+        <div class="feature-cell reveal">
+          <p class="feature-num">03</p>
+          <h3 class="feature-title">Judgement Meter</h3>
+          <p class="feature-body">Upload your cat photo. Gemini rates their loaf form, whisker symmetry, and inner monologue. Science.</p>
+        </div>
+        <div class="feature-cell reveal">
+          <p class="feature-num">04</p>
+          <h3 class="feature-title">Runway-Ready Filters</h3>
+          <p class="feature-body">Vintage Whiskers, Sepia Purr, Cyber Cool — filters designed with the editorial aesthetic every cat deserves.</p>
+        </div>
+        <div class="feature-cell reveal">
+          <p class="feature-num">05</p>
+          <h3 class="feature-title">AI Caption Generator</h3>
+          <p class="feature-body">Gemini writes your post caption from your cat's perspective. Unhinged accuracy guaranteed.</p>
+        </div>
+        <div class="feature-cell reveal">
+          <p class="feature-num">06</p>
+          <h3 class="feature-title">Verified Pawprint Badge</h3>
+          <p class="feature-body">Get the mark of feline authority. Analytics, priority features, and the ShieldCheck every sovereign deserves.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Palette -->
+  <section style="background:#08081a;padding:60px 24px">
+    <div style="max-width:1100px;margin:0 auto">
+      <p style="font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:3px;color:var(--cat-purple);text-transform:uppercase;margin-bottom:20px">Palette</p>
+      <div class="palette-row">
+        <div class="swatch" style="background:#1a1e3c;flex:1.2"><span class="swatch-label" style="color:rgba(255,255,255,.5)">#1a1e3c<br><span style="opacity:.6">NAVY</span></span></div>
+        <div class="swatch" style="background:#8b30e8"><span class="swatch-label" style="color:rgba(255,255,255,.8)">#8b30e8<br><span style="opacity:.7">PURPLE</span></span></div>
+        <div class="swatch" style="background:#f050a0"><span class="swatch-label" style="color:rgba(255,255,255,.8)">#f050a0<br><span style="opacity:.7">PINK</span></span></div>
+        <div class="swatch" style="background:#f07040"><span class="swatch-label" style="color:rgba(255,255,255,.8)">#f07040<br><span style="opacity:.7">CORAL</span></span></div>
+        <div class="swatch" style="background:#f3eeff;border:1px solid rgba(139,48,232,.15)"><span class="swatch-label" style="color:rgba(26,30,60,.4)">#f3eeff<br><span style="opacity:.6">LAVENDER</span></span></div>
+      </div>
+      <div style="margin-top:16px;height:48px;border-radius:12px;background:var(--cat-grad)"></div>
+      <p style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.3);margin-top:8px;letter-spacing:1px">BRAND GRADIENT</p>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cat-cta">
+    <h2>Every post is a<br>runway moment.</h2>
+    <p>Join thousands of cats already strutting their stuff on The Catwalk. Your sunbeam awaits.</p>
+    <a href="https://instameow.app" class="cta-white">Start Your Reign →</a>
+  </section>
+
+  <footer class="site-footer">
+    © 2025 Pawprint Network LLC · <a href="#" onclick="showPage('parent')">Pawprint Network</a> · <a href="#">instameow.app</a>
+  </footer>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     PAGE 3 — THE DOG PARK
+══════════════════════════════════════════════════════════ -->
+<div id="page-dog" class="page">
+
+  <!-- Hero -->
+  <section class="dog-hero">
+    <div class="dog-hero-left">
+      <p style="font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:3px;color:var(--dog-teal);text-transform:uppercase;margin-bottom:16px">03 — Platform · instawoof.app</p>
+      <div class="keyword-row">
+        <span class="keyword dog">ENERGETIC</span>
+        <span class="keyword dog">JOYFUL</span>
+        <span class="keyword dog">SUNNY</span>
+        <span class="keyword dog">PLAYFUL</span>
+      </div>
+      <h1 class="display-dark">The<br><span class="grad-text-dog">Dog Park</span></h1>
+      <p class="sub-dark">Tail wags and muddy paws welcome. Energetic, sunny, and joyful — every scroll feels like a warm afternoon off-leash.</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <a href="https://instawoof.app" class="cta-btn" style="background:var(--dog-grad);color:var(--navy)">Join The Dog Park</a>
+        <button class="cta-btn" style="background:transparent;color:var(--navy);border:1.5px solid rgba(26,30,60,.2)" onclick="showPage('parent')">← Back</button>
+      </div>
+    </div>
+
+    <div class="dog-hero-right">
+      <div class="card-stack">
+        <div class="dog-card">🐶</div>
+        <div class="dog-card">
+          <p class="dog-stat" style="margin-bottom:8px">BONES COLLECTED</p>
+          <p class="dog-big">203K</p>
+          <p class="dog-label" style="margin-bottom:20px">THIS WEEK</p>
+          <p class="dog-stat">TOP ZOOMIES</p>
+          <p style="font-size:14px;color:rgba(255,255,255,.6);font-family:var(--mono)">#MaximumZoomies</p>
+        </div>
+        <div class="dog-card">🦴</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="dog-features">
+    <div class="dog-features-inner">
+      <p style="font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:3px;color:var(--dog-teal);text-transform:uppercase;margin-bottom:16px">Platform Features</p>
+      <h2 class="section-h2" style="color:#fff">Built for dogs.<br>Loved by their humans.</h2>
+      <div class="dog-feature-row">
+        <div class="dog-feature-card reveal">
+          <span class="dog-feature-emoji">🦴</span>
+          <h3 class="dog-feature-title">Bone Economy</h3>
+          <p class="dog-feature-body">Give bones to posts you love. The Dog Park runs on tail wags, zoomie energy, and bones — the only currency that matters.</p>
+          <span class="dog-feature-tag">TREAT SYSTEM</span>
+        </div>
+        <div class="dog-feature-card reveal">
+          <span class="dog-feature-emoji">🎤</span>
+          <h3 class="dog-feature-title">Bark Translator</h3>
+          <p class="dog-feature-body">Gemini AI decodes your dog's barks into human thoughts — chaotic, joyful, and 100% squirrel-aware.</p>
+          <span class="dog-feature-tag">GEMINI AI</span>
+        </div>
+        <div class="dog-feature-card reveal">
+          <span class="dog-feature-emoji">⭐</span>
+          <h3 class="dog-feature-title">Good Boy Meter</h3>
+          <p class="dog-feature-body">Upload a dog photo. Get a Goodness Level rating, Zoomie Score, Eyebrow Expressiveness, and a breed estimate.</p>
+          <span class="dog-feature-tag">MULTIMODAL AI</span>
+        </div>
+        <div class="dog-feature-card reveal">
+          <span class="dog-feature-emoji">📸</span>
+          <h3 class="dog-feature-title">Pawsome Filters</h3>
+          <p class="dog-feature-body">Golden Hour, Vintage Rover, Sepia Snoot — filters that celebrate every muddy paw and wet nose in full glory.</p>
+          <span class="dog-feature-tag">PHOTO TOOLS</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Palette -->
+  <section style="background:var(--dog-cream);padding:60px 24px;border-top:1px solid rgba(26,30,60,.06)">
+    <div style="max-width:1100px;margin:0 auto">
+      <p style="font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:3px;color:var(--dog-teal);text-transform:uppercase;margin-bottom:20px">Palette</p>
+      <div class="palette-row">
+        <div class="swatch" style="background:#1a1e3c;flex:1.2"><span class="swatch-label" style="color:rgba(255,255,255,.5)">#1a1e3c<br><span style="opacity:.6">NAVY</span></span></div>
+        <div class="swatch" style="background:#2ec4b6"><span class="swatch-label" style="color:rgba(26,30,60,.7)">#2ec4b6<br><span style="opacity:.6">TEAL</span></span></div>
+        <div class="swatch" style="background:#fdb52a"><span class="swatch-label" style="color:rgba(26,30,60,.7)">#fdb52a<br><span style="opacity:.6">AMBER</span></span></div>
+        <div class="swatch" style="background:#fffbf0;border:1px solid rgba(26,30,60,.08)"><span class="swatch-label" style="color:rgba(26,30,60,.4)">#fffbf0<br><span style="opacity:.6">CREAM</span></span></div>
+        <div class="swatch" style="background:#3dd9c5"><span class="swatch-label" style="color:rgba(26,30,60,.7)">#3dd9c5<br><span style="opacity:.6">MINT</span></span></div>
+      </div>
+      <div style="margin-top:16px;height:48px;border-radius:12px;background:var(--dog-grad)"></div>
+      <p style="font-family:var(--mono);font-size:10px;color:rgba(26,30,60,.3);margin-top:8px;letter-spacing:1px">BRAND GRADIENT</p>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="dog-cta">
+    <h2>Life is better<br>with dogs.</h2>
+    <p>The Dog Park is where every good boy gets their moment. Zoomies, sticks, and bones are waiting.</p>
+    <a href="https://instawoof.app" class="cta-navy">Find Your Park →</a>
+  </section>
+
+  <footer class="site-footer">
+    © 2025 Pawprint Network LLC · <a href="#" onclick="showPage('parent')">Pawprint Network</a> · <a href="#">instawoof.app</a>
+  </footer>
+</div>
+
+<script>
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  observeReveals();
+}
+
+// Scroll reveal
+function observeReveals() {
+  const els = document.querySelectorAll('.reveal:not(.visible)');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 80);
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  els.forEach(el => obs.observe(el));
+}
+
+document.addEventListener('DOMContentLoaded', observeReveals);
+</script>
+</body>
+</html>
