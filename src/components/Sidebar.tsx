@@ -31,8 +31,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isDog = false,
 }) => {
   const playSound = isDog ? playWoofSound : playMeowSound;
-  const isDog = speciesMode === 'dog';
-
   const navItems = [
     { id: 'feed', label: 'Feed', icon: Home },
     { id: 'explore', label: 'Explore', icon: Compass },
