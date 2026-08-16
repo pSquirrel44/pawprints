@@ -21,6 +21,7 @@ import { BottomNav } from './components/BottomNav';
 import { StoriesBar } from './components/StoriesBar';
 import { StoryViewerModal } from './components/StoryViewerModal';
 import { PostCard } from './components/PostCard';
+import { PostLightbox } from './components/PostLightbox';
 import { CreatePostModal } from './components/CreatePostModal';
 import { CreateCatProfileModal } from './components/CreateCatProfileModal';
 import { ExploreView } from './components/ExploreView';
@@ -63,6 +64,7 @@ export default function App() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
   const [isCreateProfileModalOpen, setIsCreateProfileModalOpen] = useState<boolean>(false);
   const [isTranslatorModalOpen, setIsTranslatorModalOpen] = useState<boolean>(false);
+  const [lightboxPost, setLightboxPost] = useState<Post | null>(null);
   const [isAnalyzerModalOpen, setIsAnalyzerModalOpen] = useState<boolean>(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState<boolean>(false);
   const [isAffiliateModalOpen, setIsAffiliateModalOpen] = useState<boolean>(false);
@@ -110,6 +112,14 @@ export default function App() {
       root.classList.remove('theme-dog');
     }
   }, [speciesMode]);
+
+  // Keep lightbox post in sync when treat/save state changes
+  useEffect(() => {
+    if (lightboxPost) {
+      const updated = [...catPosts, ...dogPosts].find(p => p.id === lightboxPost.id);
+      if (updated) setLightboxPost(updated);
+    }
+  }, [catPosts, dogPosts]);
 
   const handleToggleSpeciesMode = () => {
     if (speciesMode === 'cat') {
@@ -471,6 +481,7 @@ isDog={speciesMode === 'dog'}
                   onAddComment={handleAddComment}
                   onSelectTag={handleSelectTag}
                   isDog={speciesMode === 'dog'}
+                  onOpenLightbox={(p) => setLightboxPost(p)}
                   onOpenShareModal={(p) => setSharePostTarget(p)}
                 />
               ))}
@@ -519,6 +530,7 @@ isDog={speciesMode === 'dog'}
                     onAddComment={handleAddComment}
                     onSelectTag={handleSelectTag}
                     isDog={speciesMode === 'dog'}
+                  onOpenLightbox={(p) => setLightboxPost(p)}
                   onOpenShareModal={(p) => setSharePostTarget(p)}
                   />
                 ))
@@ -702,6 +714,25 @@ isDog={speciesMode === 'dog'}
       />
 
     </div>
+      {/* Post lightbox */}
+      {lightboxPost && (() => {
+        const allPosts = [...catPosts, ...dogPosts];
+        const idx = allPosts.findIndex(p => p.id === lightboxPost.id);
+        return (
+          <PostLightbox
+            post={lightboxPost}
+            isDog={speciesMode === 'dog'}
+            onClose={() => setLightboxPost(null)}
+            onTreat={() => handleTreatPost(lightboxPost.id)}
+            onSave={() => handleSavePost(lightboxPost.id)}
+            onShare={() => { setSharePostTarget(lightboxPost); setLightboxPost(null); }}
+            hasPrev={idx > 0}
+            hasNext={idx < allPosts.length - 1}
+            onPrev={() => idx > 0 && setLightboxPost(allPosts[idx - 1])}
+            onNext={() => idx < allPosts.length - 1 && setLightboxPost(allPosts[idx + 1])}
+          />
+        );
+      })()}
     </ClerkAuthGate>
   );
 }
