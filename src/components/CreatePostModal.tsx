@@ -19,29 +19,6 @@ const SAMPLE_IMAGES = [
   { label: 'Curious Bengal', url: 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=1000&q=80' },
 ];
 
-const FILTERS = [
-  { id: 'none', label: 'Normal' },
-  { id: 'vintage-whiskers', label: isDog ? 'Vintage Rover' : 'Vintage Whiskers' },
-  { id: 'warm-glow', label: isDog ? 'Golden Hour' : 'Warm Loaf' },
-  { id: 'cyber-cool', label: 'Cyber Kitten' },
-  { id: 'sepia-purr', label: isDog ? 'Sepia Snoot' : 'Sepia Purr' },
-  { id: 'black-white-paws', label: 'B&W Paws' },
-];
-
-const LOCATIONS = [
-  isDog ? 'The Backyard Grass' : 'The Sunbeam on Carpet',
-  'Top of the Wi-Fi Router',
-  'Cardboard Box #4',
-  'Kitchen Island Counter',
-  'Human\'s Fresh Laundry',
-  'Shadow Realm (Under Bed)',
-  'On Top of Keyboard',
-];
-
-const MOODS = isDog
-  ? ['Maximum Zoomies', 'Good Boy Mode', 'Squirrel Alert', 'Nap Champion', 'Treat Obsessed']
-  : ['Sassy Overlord', 'Sleepy Loaf', '3AM Zoomies Chaos', 'Philosophical Cat', 'Demanding Wet Food'];
-
 export const CreatePostModal: React.FC<CreatePostModalProps> = ({
   isDog = false,
   isOpen,
@@ -50,6 +27,31 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
   onCreatePost,
 }) => {
   if (!isOpen) return null;
+
+  const playSound = isDog ? playWoofSound : playMeowSound;
+
+  const FILTERS = [
+    { id: 'none', label: 'Normal' },
+    { id: 'vintage-whiskers', label: isDog ? 'Vintage Rover' : 'Vintage Whiskers' },
+    { id: 'warm-glow', label: isDog ? 'Golden Hour' : 'Warm Loaf' },
+    { id: 'cyber-cool', label: 'Cyber Kitten' },
+    { id: 'sepia-purr', label: isDog ? 'Sepia Snoot' : 'Sepia Purr' },
+    { id: 'black-white-paws', label: 'B&W Paws' },
+  ];
+
+  const LOCATIONS = [
+    isDog ? 'The Backyard Grass' : 'The Sunbeam on Carpet',
+    'Top of the Wi-Fi Router',
+    'Cardboard Box #4',
+    'Kitchen Island Counter',
+    'Human\'s Fresh Laundry',
+    'Shadow Realm (Under Bed)',
+    'On Top of Keyboard',
+  ];
+
+  const MOODS = isDog
+    ? ['Maximum Zoomies', 'Good Boy Mode', 'Squirrel Alert', 'Nap Champion', 'Treat Obsessed']
+    : ['Sassy Overlord', 'Sleepy Loaf', '3AM Zoomies Chaos', 'Philosophical Cat', 'Demanding Wet Food'];
 
   const [imageUrl, setImageUrl] = useState(SAMPLE_IMAGES[0].url);
   const [selectedFilter, setSelectedFilter] = useState('none');
@@ -162,7 +164,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200">
       <div className="relative w-full max-w-2xl bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden my-8">
-        
+
         {/* Header */}
         <div className="p-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -181,10 +183,10 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
 
         {/* Content Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          
+
           {/* Image Upload & Preview Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
+
             {/* Image Box */}
             <div className="space-y-3">
               <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider">
@@ -233,7 +235,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
 
             {/* Controls Box */}
             <div className="space-y-4">
-              
+
               {/* Filters */}
               <div>
                 <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">
