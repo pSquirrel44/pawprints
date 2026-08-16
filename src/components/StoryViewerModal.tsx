@@ -20,6 +20,8 @@ export const StoryViewerModal: React.FC<StoryViewerModalProps> = ({
 }) => {
   if (!story) return null;
 
+  const playSound = isDog ? playWoofSound : playMeowSound;
+
   const [progress, setProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [replyText, setReplyText] = useState('');
