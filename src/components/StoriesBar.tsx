@@ -18,6 +18,8 @@ export const StoriesBar: React.FC<StoriesBarProps> = ({
   onSelectStory,
   onOpenCreateStoryModal,
 }) => {
+  const playSound = isDog ? playWoofSound : playMeowSound;
+
   return (
     <div className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-4 shadow-sm mb-6 overflow-x-auto no-scrollbar">
       <div className="flex items-center gap-4 min-w-max">
