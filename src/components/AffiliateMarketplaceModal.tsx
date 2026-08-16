@@ -21,6 +21,8 @@ export const AffiliateMarketplaceModal: React.FC<AffiliateMarketplaceModalProps>
 }) => {
   if (!isOpen) return null;
 
+  const playSound = isDog ? playWoofSound : playMeowSound;
+
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [copiedCodeId, setCopiedCodeId] = useState<string | null>(null);
   const [redirectToast, setRedirectToast] = useState<{ brand: string; url: string } | null>(null);
@@ -60,7 +62,7 @@ export const AffiliateMarketplaceModal: React.FC<AffiliateMarketplaceModalProps>
     playPurrSound();
     setTimeout(() => {
       setIsRedeeming(false);
-      setRedeemedSuccess(`Successfully converted ${treatsCommission} {isDog ? 'Bones' : 'Fish Treats'} into a $28.40 ${providerName} e-Gift Card sent to ${activeProfile.handle}@instameow.app!`);
+      setRedeemedSuccess(`Successfully converted ${treatsCommission} ${isDog ? 'Bones' : 'Fish Treats'} into a $28.40 ${providerName} e-Gift Card sent to ${activeProfile.handle}@instameow.app!`);
       setTreatsCommission(0);
       playSound(1.3);
     }, 1500);
@@ -102,7 +104,7 @@ export const AffiliateMarketplaceModal: React.FC<AffiliateMarketplaceModalProps>
           <div className="bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 flex items-center justify-between animate-in slide-in-from-top duration-200">
             <div className="flex items-center gap-2">
               <ExternalLink className="w-4 h-4" />
-              <span>Redirecting to {redirectToast.brand} with affiliate code <code className="bg-black/20 px-1.5 py-0.5 rounded">isDog ? 'ref=thedogpark_dog_affiliate' : 'ref=thecatwalk_cat_affiliate'</code></span>
+              <span>Redirecting to {redirectToast.brand} with affiliate code <code className="bg-black/20 px-1.5 py-0.5 rounded">{isDog ? 'ref=thedogpark_dog_affiliate' : 'ref=thecatwalk_cat_affiliate'}</code></span>
             </div>
             <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full">+10 Treat Clicks Logged!</span>
           </div>
