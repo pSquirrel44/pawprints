@@ -33,6 +33,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
   const profilePosts = posts.filter((p) => p.authorId === profile.id || p.authorHandle === profile.handle);
 
+  const playSound = isDog ? playWoofSound : playMeowSound;
+
   return (
     <div className="space-y-6 pb-12">
       
