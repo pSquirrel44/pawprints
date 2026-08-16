@@ -35,10 +35,6 @@ const DOG_TRENDING_TAGS = [
   '#pawprintnetwork',
 ];
 
-const CATEGORIES = isDog
-  ? ['All', 'Puppies', 'Chonky Dogs', 'Costumes', 'Nap Champs', 'Zoomies', 'Fetch']
-  : ['All', 'Kittens', 'Chonkers', 'Cosplay', 'Nap Champs', 'Loafing', 'Zoomies'];
-
 export const ExploreView: React.FC<ExploreViewProps> = ({
   isDog = false,
   posts,
@@ -48,6 +44,10 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
   onSelectTag,
 }) => {
   const [selectedCategory, setSelectedCategory] = useState('All');
+
+  const CATEGORIES = isDog
+    ? ['All', 'Puppies', 'Chonky Dogs', 'Costumes', 'Nap Champs', 'Zoomies', 'Fetch']
+    : ['All', 'Kittens', 'Chonkers', 'Cosplay', 'Nap Champs', 'Loafing', 'Zoomies'];
 
   // Filter posts based on search query or category
   const filteredPosts = posts.filter((post) => {
