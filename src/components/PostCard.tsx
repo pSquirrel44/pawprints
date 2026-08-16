@@ -12,6 +12,7 @@ interface PostCardProps {
   onAddComment: (postId: string, text: string) => void;
   onSelectTag: (tag: string) => void;
   onOpenShareModal: (post: Post) => void;
+  onOpenLightbox?: (post: Post) => void;
 }
 
 export const PostCard: React.FC<PostCardProps> = ({
@@ -23,6 +24,7 @@ export const PostCard: React.FC<PostCardProps> = ({
   onAddComment,
   onSelectTag,
   onOpenShareModal,
+  onOpenLightbox,
 }) => {
   const [showTranslation, setShowTranslation] = useState(false);
   const [showComments, setShowComments] = useState(false);
@@ -113,6 +115,7 @@ export const PostCard: React.FC<PostCardProps> = ({
       {/* Post Image */}
       <div
         className="relative w-full aspect-square bg-zinc-950 overflow-hidden cursor-pointer select-none group"
+        onClick={() => onOpenLightbox?.(post)}
         onDoubleClick={handleDoubleTapImage}
       >
         <img
