@@ -18,6 +18,8 @@ export const SocialShareModal: React.FC<SocialShareModalProps> = ({
 }) => {
   if (!isOpen || !post) return null;
 
+  const playSound = isDog ? playWoofSound : playMeowSound;
+
   const [copiedLink, setCopiedLink] = useState(false);
   const [shareToast, setShareToast] = useState<string | null>(null);
 
