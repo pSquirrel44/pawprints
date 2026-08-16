@@ -20,6 +20,8 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
+  const playSound = isDog ? playWoofSound : playMeowSound;
+
   const getNotificationIcon = (type: NotificationItem['type']) => {
     switch (type) {
       case 'treat':
