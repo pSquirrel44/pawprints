@@ -54,8 +54,8 @@ async function startServer() {
 
   // AI Cat Caption Generator
   app.post('/api/gemini/cat-caption', async (req, res) => {
+    const { mood, breed, topic, location, isDog } = req.body;
     try {
-      const { mood, breed, topic, location, isDog } = req.body;
       const ai = getGeminiClient();
 
       const prompt = `You are a majestic, hilarious cat on The Catwalk (by Pawprint Network) writing a social media post caption.

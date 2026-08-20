@@ -22,5 +22,16 @@
     },
     "allowImportingTsExtensions": true,
     "noEmit": true
-  }
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "android",
+    "ios",
+    "www",
+    "resources",
+    "App.tsx",
+    "PostCard.tsx",
+    "PostLightbox.tsx"
+  ]
 }
