@@ -3,6 +3,11 @@ import { createRoot } from 'react-dom/client';
 import { ClerkProvider } from '@clerk/clerk-react';
 import App from './App.tsx';
 import './index.css';
+import { initNativeBridge } from './utils/nativeBridge';
+
+// No-op in a regular browser tab; wires up splash screen / status bar /
+// Android back button when running inside the iOS or Android app.
+initNativeBridge();
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
