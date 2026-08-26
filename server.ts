@@ -54,8 +54,8 @@ async function startServer() {
 
   // AI Cat Caption Generator
   app.post('/api/gemini/cat-caption', async (req, res) => {
-    const { mood, breed, topic, location, isDog } = req.body;
     try {
+      const { mood, breed, topic, location, isDog } = req.body;
       const ai = getGeminiClient();
 
       const prompt = `You are a majestic, hilarious cat on The Catwalk (by Pawprint Network) writing a social media post caption.
@@ -242,9 +242,39 @@ Format response as strict JSON with fields:
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.join(process.cwd(), 'dist');
+    const distPath   = path.join(process.cwd(), 'dist');
+    const publicPath = path.join(process.cwd(), 'public');
+
+    // Serve static assets (JS/CSS bundles, icons, etc.)
     app.use(express.static(distPath));
+    app.use(express.static(publicPath));
+
+    // ── Domain-aware routing ───────────────────────────────────────────────
+    // instameow.app and instawoof.app:
+    //   /          → landing page (pawprint_landing.html)
+    //   /app       → React social platform (index.html)
+    //   /app/*     → React social platform (index.html)
+    //   everything else (assets, /api) → handled above
+    //
+    // pawprints-ryn4.onrender.com (and any other hostname):
+    //   /          → React social platform directly (existing behaviour)
+    // ─────────────────────────────────────────────────────────────────────
+    const CUSTOM_DOMAINS = ['instameow.app', 'instawoof.app', 'www.instameow.app', 'www.instawoof.app'];
+
     app.get('*', (req, res) => {
+      const host = (req.hostname || '').toLowerCase();
+      const isCustomDomain = CUSTOM_DOMAINS.some(d => host === d || host.endsWith('.' + d));
+
+      if (isCustomDomain) {
+        // /app or /app/* → React SPA
+        if (req.path === '/app' || req.path.startsWith('/app/')) {
+          return res.sendFile(path.join(distPath, 'index.html'));
+        }
+        // / or anything else → landing page
+        return res.sendFile(path.join(publicPath, 'pawprint_landing.html'));
+      }
+
+      // Default (Render URL, local dev preview, etc.) → React SPA
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
