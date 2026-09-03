@@ -36,9 +36,27 @@ import { DeploymentRoadmapModal } from './components/DeploymentRoadmapModal';
 import { ClerkAuthGate } from './components/ClerkAuthGate';
 import { useUser } from '@clerk/clerk-react';
 
+// Determine which brand (cat/dog) to open the app in. Reads the `?app=`
+// param set by the Pawprint Network landing page (public/pawprint_landing.html)
+// so "Join The Catwalk" / "Join The Dog Park" actually land in the right
+// experience, instead of always defaulting to cat. Falls back to hostname
+// (instawoof.app → dog) for direct /app visits with no param.
+function getInitialSpeciesMode(): 'cat' | 'dog' {
+  if (typeof window === 'undefined') return 'cat';
+
+  const params = new URLSearchParams(window.location.search);
+  const appParam = params.get('app');
+  if (appParam === 'cat' || appParam === 'dog') return appParam;
+
+  const host = window.location.hostname.toLowerCase();
+  if (host.includes('instawoof')) return 'dog';
+
+  return 'cat';
+}
+
 export default function App() {
   const { user } = useUser();
-  const [speciesMode, setSpeciesMode] = useState<'cat' | 'dog'>('cat');
+  const [speciesMode, setSpeciesMode] = useState<'cat' | 'dog'>(getInitialSpeciesMode);
 
   const [profiles, setProfiles] = useState<CatProfile[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
@@ -96,11 +114,27 @@ export default function App() {
     setDogStories(loadedDogStories);
     setDogNotifs(loadedDogNotifs);
 
-    setProfiles(loadedCatProfiles);
-    setPosts(loadedCatPosts);
-    setStories(loadedCatStories);
-    setNotifications(loadedCatNotifs);
-    setActiveProfileIdState(loadedCatActiveId);
+    if (speciesMode === 'dog') {
+      setProfiles(loadedDogProfiles.length ? loadedDogProfiles : INITIAL_DOG_PROFILES);
+      setPosts(loadedDogPosts.length ? loadedDogPosts : INITIAL_DOG_POSTS);
+      setStories(loadedDogStories.length ? loadedDogStories : INITIAL_DOG_STORIES);
+      setNotifications(loadedDogNotifs.length ? loadedDogNotifs : INITIAL_DOG_NOTIFICATIONS);
+      setActiveProfileIdState(getActiveProfileId('dog') || 'dog_1');
+    } else {
+      setProfiles(loadedCatProfiles);
+      setPosts(loadedCatPosts);
+      setStories(loadedCatStories);
+      setNotifications(loadedCatNotifs);
+      setActiveProfileIdState(loadedCatActiveId);
+    }
+
+    // Clean the ?app= param from the address bar now that it's been read.
+    if (window.location.search.includes('app=')) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('app');
+      window.history.replaceState({}, '', url.toString());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Toggle brand theme on <html> element whenever platform switches
