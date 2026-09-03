@@ -246,8 +246,15 @@ Format response as strict JSON with fields:
     const publicPath = path.join(process.cwd(), 'public');
 
     // Serve static assets (JS/CSS bundles, icons, etc.)
-    app.use(express.static(distPath));
-    app.use(express.static(publicPath));
+    // `index: false` on both: without it, express.static auto-serves
+    // dist/index.html (and would do the same for a public/index.html) for
+    // any "/" request, which short-circuits the domain-aware routing below
+    // before it ever runs — that's why instameow.app and instawoof.app were
+    // both landing straight in the React app (defaulting to cat/Instameow)
+    // instead of the Pawprint Network landing page. The `app.get('*')`
+    // handler below is now the only thing that decides what "/" serves.
+    app.use(express.static(distPath, { index: false }));
+    app.use(express.static(publicPath, { index: false }));
 
     // ── Domain-aware routing ───────────────────────────────────────────────
     // instameow.app and instawoof.app:
