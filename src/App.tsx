@@ -35,6 +35,8 @@ import { SocialShareModal } from './components/SocialShareModal';
 import { DeploymentRoadmapModal } from './components/DeploymentRoadmapModal';
 import { ClerkAuthGate } from './components/ClerkAuthGate';
 import { useUser } from '@clerk/clerk-react';
+import { SoundboardModal } from './components/SoundboardModal';
+import { LiveFilterCamera } from './components/LiveFilterCamera';
 
 // Determine which brand (cat/dog) to open the app in. Reads the `?app=`
 // param set by the Pawprint Network landing page (public/pawprint_landing.html)
@@ -88,6 +90,9 @@ export default function App() {
   const [isAffiliateModalOpen, setIsAffiliateModalOpen] = useState<boolean>(false);
   const [isSocialAuthModalOpen, setIsSocialAuthModalOpen] = useState<boolean>(false);
   const [isRoadmapModalOpen, setIsRoadmapModalOpen] = useState<boolean>(false);
+  const [isSoundboardOpen, setIsSoundboardOpen] = useState<boolean>(false);
+  const [isCameraOpen, setIsCameraOpen] = useState<boolean>(false);
+  const [capturedImageUrl, setCapturedImageUrl] = useState<string | undefined>(undefined);
   const [selectedStory, setSelectedStory] = useState<Story | null>(null);
   const [sharePostTarget, setSharePostTarget] = useState<Post | null>(null);
 
@@ -145,6 +150,14 @@ export default function App() {
     } else {
       root.classList.remove('theme-dog');
     }
+  }, [speciesMode]);
+
+  // Keep the browser tab title in sync with the active brand. The static
+  // index.html always ships "The Catwalk" as a placeholder (it can't know
+  // which domain it's on before JS runs), so this corrects it once we do.
+  useEffect(() => {
+    document.title =
+      speciesMode === 'dog' ? 'The Dog Park • Pawprint Network' : 'The Catwalk • Pawprint Network';
   }, [speciesMode]);
 
   // Keep lightbox post in sync when treat/save state changes
@@ -487,6 +500,8 @@ export default function App() {
           onOpenAnalyzerModal={() => setIsAnalyzerModalOpen(true)}
           onOpenAffiliateModal={() => setIsAffiliateModalOpen(true)}
           onOpenSocialAuthModal={() => setIsSocialAuthModalOpen(true)}
+          onOpenSoundboard={() => setIsSoundboardOpen(true)}
+          onOpenCamera={() => setIsCameraOpen(true)}
         />
 
         {/* Center Main Content Area */}
@@ -618,7 +633,7 @@ isDog={speciesMode === 'dog'}
           <div className="p-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl shadow-xs space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
-                Suggested Cats
+                {speciesMode === 'dog' ? 'Suggested Dogs' : 'Suggested Cats'}
               </span>
               <button
                 onClick={() => setActiveTab('explore')}
@@ -664,7 +679,7 @@ isDog={speciesMode === 'dog'}
           {/* Footer Info */}
           <div className="px-2 text-[11px] text-zinc-400 space-y-1">
             <p>© 2026 Pawprint Network • Powered by Gemini AI</p>
-            <p>Made with 🐾 for cat lovers worldwide.</p>
+            <p>Made with 🐾 for {speciesMode === 'dog' ? 'dog' : 'cat'} lovers worldwide.</p>
           </div>
 
         </aside>
@@ -684,9 +699,16 @@ isDog={speciesMode === 'dog'}
       <CreatePostModal
         isDog={speciesMode === 'dog'}
                 isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
+        onClose={() => {
+          setIsCreateModalOpen(false);
+          setCapturedImageUrl(undefined);
+        }}
         activeProfile={activeProfile}
-        onCreatePost={handleCreatePost}
+        onCreatePost={(newPostData) => {
+          handleCreatePost(newPostData);
+          setCapturedImageUrl(undefined);
+        }}
+        initialImageUrl={capturedImageUrl}
       />
 
       <CreateCatProfileModal
@@ -767,6 +789,26 @@ isDog={speciesMode === 'dog'}
           />
         );
       })()}
+
+      {/* Sound Library */}
+      <SoundboardModal
+        isOpen={isSoundboardOpen}
+        onClose={() => setIsSoundboardOpen(false)}
+        isDog={speciesMode === 'dog'}
+      />
+
+      {/* Live Filter Camera */}
+      {isCameraOpen && (
+        <LiveFilterCamera
+          isDog={speciesMode === 'dog'}
+          onCapture={(dataUrl) => {
+            setCapturedImageUrl(dataUrl);
+            setIsCameraOpen(false);
+            setIsCreateModalOpen(true);
+          }}
+          onClose={() => setIsCameraOpen(false)}
+        />
+      )}
     </ClerkAuthGate>
   );
 }

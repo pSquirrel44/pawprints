@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Compass, PlusSquare, Bookmark, User, MessageSquare, Sparkles, Cat, ShoppingBag, UserCheck, Plus } from 'lucide-react';
+import { Home, Compass, PlusSquare, Bookmark, User, MessageSquare, Sparkles, Cat, ShoppingBag, UserCheck, Plus, Volume2, Camera } from 'lucide-react';
 import { CatProfile } from '../types';
 import { playMeowSound, playWoofSound } from '../utils/audio';
 
@@ -14,6 +14,8 @@ interface SidebarProps {
   onOpenAnalyzerModal: () => void;
   onOpenAffiliateModal: () => void;
   onOpenSocialAuthModal: () => void;
+  onOpenSoundboard?: () => void;
+  onOpenCamera?: () => void;
   isDog?: boolean;
 }
 
@@ -28,6 +30,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenAnalyzerModal,
   onOpenAffiliateModal,
   onOpenSocialAuthModal,
+  onOpenSoundboard,
+  onOpenCamera,
   isDog = false,
 }) => {
   const playSound = isDog ? playWoofSound : playMeowSound;
@@ -170,6 +174,42 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
             </div>
           </button>
+
+          {onOpenSoundboard && (
+            <button
+              onClick={() => {
+                playSound(1.0);
+                onOpenSoundboard();
+              }}
+              className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-sky-700 dark:text-sky-300 bg-sky-50/70 dark:bg-sky-950/30 hover:bg-sky-100/80 dark:hover:bg-sky-900/50 border border-sky-200/60 dark:border-sky-800/40 transition-colors"
+            >
+              <Volume2 className="w-4 h-4 text-sky-500 shrink-0" />
+              <div className="text-left min-w-0">
+                <div className="font-bold truncate">{isDog ? 'Dog Park Sound Library' : 'Catwalk Sound Library'}</div>
+                <div className="text-[10px] text-sky-600/70 dark:text-sky-400/70 truncate">
+                  Play & mix realistic sound effects
+                </div>
+              </div>
+            </button>
+          )}
+
+          {onOpenCamera && (
+            <button
+              onClick={() => {
+                playSound(1.0);
+                onOpenCamera();
+              }}
+              className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-rose-700 dark:text-rose-300 bg-rose-50/70 dark:bg-rose-950/30 hover:bg-rose-100/80 dark:hover:bg-rose-900/50 border border-rose-200/60 dark:border-rose-800/40 transition-colors"
+            >
+              <Camera className="w-4 h-4 text-rose-500 shrink-0" />
+              <div className="text-left min-w-0">
+                <div className="font-bold truncate">Live Filter Camera</div>
+                <div className="text-[10px] text-rose-600/70 dark:text-rose-400/70 truncate">
+                  Snap a photo with fun filters
+                </div>
+              </div>
+            </button>
+          )}
         </div>
 
       </div>

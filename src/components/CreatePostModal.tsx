@@ -9,6 +9,8 @@ interface CreatePostModalProps {
   onClose: () => void;
   activeProfile: CatProfile;
   onCreatePost: (newPost: Omit<Post, 'id' | 'timestamp' | 'treatsCount' | 'commentsCount' | 'comments'>) => void;
+  /** Pre-fill the post image, e.g. with a photo just captured from LiveFilterCamera. */
+  initialImageUrl?: string;
 }
 
 const SAMPLE_IMAGES = [
@@ -25,6 +27,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
   onClose,
   activeProfile,
   onCreatePost,
+  initialImageUrl,
 }) => {
   if (!isOpen) return null;
 
@@ -53,7 +56,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
     ? ['Maximum Zoomies', 'Good Boy Mode', 'Squirrel Alert', 'Nap Champion', 'Treat Obsessed']
     : ['Sassy Overlord', 'Sleepy Loaf', '3AM Zoomies Chaos', 'Philosophical Cat', 'Demanding Wet Food'];
 
-  const [imageUrl, setImageUrl] = useState(SAMPLE_IMAGES[0].url);
+  const [imageUrl, setImageUrl] = useState(initialImageUrl || SAMPLE_IMAGES[0].url);
   const [selectedFilter, setSelectedFilter] = useState('none');
   const [caption, setCaption] = useState('');
   const [humanTranslation, setHumanTranslation] = useState('');
