@@ -23,11 +23,11 @@ async function startServer() {
 
   app.use(express.json({ limit: '10mb' }));
 
-  // Clerk auth middleware — reads session token from every request
-  app.use(clerkMiddleware());
-
-  // Protect all /api routes — returns 401 if not signed in
-  app.use('/api', requireAuth());
+  // Authenticate API traffic only. Clerk adds a short-lived handshake query
+  // parameter while establishing a browser session. Running the backend
+  // middleware globally makes that normal page request fail before the SPA or
+  // landing page can be served whenever credentials are being rotated.
+  app.use('/api', clerkMiddleware(), requireAuth());
 
   // Initialize Gemini AI SDK lazily/safely
   const getGeminiClient = () => {
