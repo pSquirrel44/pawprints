@@ -56,6 +56,10 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
     ? ['Maximum Zoomies', 'Good Boy Mode', 'Squirrel Alert', 'Nap Champion', 'Treat Obsessed']
     : ['Sassy Overlord', 'Sleepy Loaf', '3AM Zoomies Chaos', 'Philosophical Cat', 'Demanding Wet Food'];
 
+  const CATEGORIES = isDog
+    ? ['Puppies', 'Chonky Dogs', 'Costumes', 'Nap Champs', 'Zoomies', 'Fetch']
+    : ['Kittens', 'Chonkers', 'Cosplay', 'Nap Champs', 'Loafing', 'Zoomies'];
+
   const [imageUrl, setImageUrl] = useState(initialImageUrl || SAMPLE_IMAGES[0].url);
   const [selectedFilter, setSelectedFilter] = useState('none');
   const [caption, setCaption] = useState('');
@@ -267,17 +271,21 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
                 <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1.5">
                   Location
                 </label>
-                <select
+                <input
+                  type="text"
+                  list="post-location-options"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
+                  placeholder="Type or choose a location"
                   className="w-full px-3 py-2 text-xs bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-100 outline-none"
-                >
+                />
+                <datalist id="post-location-options">
                   {LOCATIONS.map((loc) => (
                     <option key={loc} value={loc}>
-                      📍 {loc}
+                      {loc}
                     </option>
                   ))}
-                </select>
+                </datalist>
               </div>
 
               {/* Category Picker */}
@@ -285,17 +293,21 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
                 <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1.5">
                   Category
                 </label>
-                <select
+                <input
+                  type="text"
+                  list="post-category-options"
                   value={category}
-                  onChange={(e) => setCategory(e.target.value as Post['category'])}
+                  onChange={(e) => setCategory(e.target.value)}
+                  placeholder="Type or choose a category"
                   className="w-full px-3 py-2 text-xs bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-100 outline-none"
-                >
-                  {(isDog ? ['Puppies', 'Chonky Dogs', 'Costumes', 'Nap Champs', 'Zoomies', 'Fetch'] : ['Kittens', 'Chonkers', 'Cosplay', 'Nap Champs', 'Loafing', 'Zoomies']).map((cat) => (
+                />
+                <datalist id="post-category-options">
+                  {CATEGORIES.map((cat) => (
                     <option key={cat} value={cat}>
-                      🏷️ {cat}
+                      {cat}
                     </option>
                   ))}
-                </select>
+                </datalist>
               </div>
 
             </div>
