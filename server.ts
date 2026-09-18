@@ -116,6 +116,10 @@ async function startServer() {
     res.json({ status: 'ok', app: 'Pawprint Network' });
   });
 
+  // Social writes need parsed JSON before their routers run. Authentication is
+  // still enforced route-by-route inside each social router.
+  app.use('/api', express.json({ limit: '25mb' }));
+
   // Social graph API — each router authenticates its own routes
   // (requireAuth/optionalAuth from server/middleware/auth.ts), so these
   // are mounted before the blanket requireApiAuth below.
@@ -142,7 +146,6 @@ async function startServer() {
       },
     },
   }));
-  app.use('/api', express.json({ limit: '25mb' })); // raised to fit short in-app-recorded video clips
 
   // Initialize Gemini AI SDK lazily/safely
   const getGeminiClient = () => {

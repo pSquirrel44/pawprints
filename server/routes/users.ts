@@ -1,11 +1,11 @@
 import { Router, Response } from 'express';
 import pool from '../db/pool';
-import { requireAuth, optionalAuth, AuthRequest } from '../middleware/auth';
+import { requireAuth, requireClerkAuth, optionalAuth, AuthRequest } from '../middleware/auth';
 
 const router = Router();
 
 // POST /api/users/sync — called after sign-in to upsert user
-router.post('/sync', requireAuth, async (req: AuthRequest, res: Response) => {
+router.post('/sync', requireClerkAuth, async (req: AuthRequest, res: Response) => {
   const { username, display_name, avatar_url, bio, species } = req.body;
   try {
     const result = await pool.query(

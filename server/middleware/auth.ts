@@ -7,6 +7,24 @@ export interface AuthRequest extends Request {
   clerkId?: string;
 }
 
+// Clerk-only authentication for bootstrap endpoints. Unlike requireAuth, this
+// deliberately does not require a matching row in our users table: the sync
+// endpoint is responsible for creating that row after a user's first sign-in.
+export function requireClerkAuth(req: AuthRequest, res: Response, next: NextFunction) {
+  try {
+    const { userId: clerkId } = getAuth(req);
+    if (!clerkId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    req.clerkId = clerkId;
+    next();
+  } catch (err) {
+    console.error('Clerk auth middleware error:', err);
+    res.status(500).json({ error: 'Auth error' });
+  }
+}
+
 export async function requireAuth(req: AuthRequest, res: Response, next: NextFunction) {
   try {
     const { userId: clerkId } = getAuth(req);

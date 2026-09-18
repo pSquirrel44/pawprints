@@ -7,8 +7,9 @@ import { PostCard } from '../components/feed/PostCard';
 import { Button } from '../components/ui/Button';
 
 export default function ProfilePage() {
-  const { username } = useParams<{ username: string }>();
+  const { username: routeUsername } = useParams<{ username: string }>();
   const { theme, token, currentUser } = useApp();
+  const username = routeUsername || currentUser?.username;
   const [user, setUser] = useState<User | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);

@@ -4,6 +4,9 @@ import { BrowserRouter } from 'react-router-dom';
 import { ClerkProvider } from '@clerk/clerk-react';
 import App from './App';
 import './index.css';
+import { initNativeBridge } from './utils/nativeBridge';
+
+initNativeBridge();
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 const brandedHosts = new Set([
