@@ -88,7 +88,7 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
       <div className="space-y-2">
         <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
           <Hash className="w-3.5 h-3.5 brand-color 500" />
-          <span>{isDog ? 'Trending Dog Hashtags' : 'Trending Cat Hashtags'}</span>
+          <span>Trending Cat Hashtags</span>
         </p>
         <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
           {(isDog ? DOG_TRENDING_TAGS : CAT_TRENDING_TAGS).map((tag) => (

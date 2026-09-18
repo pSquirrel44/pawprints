@@ -64,8 +64,6 @@ export const CreateCatProfileModal: React.FC<CreateCatProfileModalProps> = ({
   onCreateProfile,
   speciesMode = 'cat',
 }) => {
-  if (!isOpen) return null;
-
   const isDog = speciesMode === 'dog';
   const breedsList = isDog ? DOG_BREEDS : CAT_BREEDS;
   const avatarsList = isDog ? PRESET_DOG_AVATARS : PRESET_CAT_AVATARS;
@@ -82,6 +80,8 @@ export const CreateCatProfileModal: React.FC<CreateCatProfileModalProps> = ({
   const [bannerUrl, setBannerUrl] = useState(isDog ? 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=1200&q=80' : 'https://images.unsplash.com/photo-1548802673-380ab8ebc7b7?auto=format&fit=crop&w=1200&q=80');
 
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+
+  if (!isOpen) return null;
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

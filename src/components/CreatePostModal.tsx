@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Sparkles, Upload, Image as ImageIcon, MapPin, Tag, Cat, RefreshCw } from 'lucide-react';
 import { CatProfile, Post } from '../types';
 import { playMeowSound, playPurrSound, playWoofSound } from '../utils/audio';
+import { useAuthenticatedApi } from '../auth/useAuthenticatedApi';
 
 interface CreatePostModalProps {
   isDog?: boolean;
@@ -9,7 +10,7 @@ interface CreatePostModalProps {
   onClose: () => void;
   activeProfile: CatProfile;
   onCreatePost: (newPost: Omit<Post, 'id' | 'timestamp' | 'treatsCount' | 'commentsCount' | 'comments'>) => void;
-  /** Pre-fill the post image, e.g. with a photo just captured from LiveFilterCamera. */
+  // Pre-fills the photo when opened right after a Live Filter Camera capture.
   initialImageUrl?: string;
 }
 
@@ -29,9 +30,8 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
   onCreatePost,
   initialImageUrl,
 }) => {
-  if (!isOpen) return null;
-
   const playSound = isDog ? playWoofSound : playMeowSound;
+  const apiRequest = useAuthenticatedApi();
 
   const FILTERS = [
     { id: 'none', label: 'Normal' },
@@ -56,10 +56,6 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
     ? ['Maximum Zoomies', 'Good Boy Mode', 'Squirrel Alert', 'Nap Champion', 'Treat Obsessed']
     : ['Sassy Overlord', 'Sleepy Loaf', '3AM Zoomies Chaos', 'Philosophical Cat', 'Demanding Wet Food'];
 
-  const CATEGORIES = isDog
-    ? ['Puppies', 'Chonky Dogs', 'Costumes', 'Nap Champs', 'Zoomies', 'Fetch']
-    : ['Kittens', 'Chonkers', 'Cosplay', 'Nap Champs', 'Loafing', 'Zoomies'];
-
   const [imageUrl, setImageUrl] = useState(initialImageUrl || SAMPLE_IMAGES[0].url);
   const [selectedFilter, setSelectedFilter] = useState('none');
   const [caption, setCaption] = useState('');
@@ -69,6 +65,17 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
   const [tagsInput, setTagsInput] = useState(isDog ? '#doglife, #thedogpark' : '#catlife, #thecatwalk');
   const [selectedMood, setSelectedMood] = useState(MOODS[0]);
   const [isGeneratingCaption, setIsGeneratingCaption] = useState(false);
+
+  // The modal stays mounted while closed, so a fresh camera capture needs to
+  // land in the preview each time the modal re-opens, not just on first mount.
+  useEffect(() => {
+    if (isOpen && initialImageUrl) {
+      setImageUrl(initialImageUrl);
+      setSelectedFilter('none'); // the camera already baked its filter into the photo
+    }
+  }, [isOpen, initialImageUrl]);
+
+  if (!isOpen) return null;
 
   // File Upload Reader
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -90,7 +97,11 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
     setIsGeneratingCaption(true);
     playPurrSound();
     try {
-      const res = await fetch('/api/gemini/cat-caption', {
+      const data = await apiRequest<{
+        caption?: string;
+        humanTranslation?: string;
+        tags?: string[];
+      }>('/api/gemini/cat-caption', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -98,10 +109,9 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
           breed: activeProfile.breed,
           location,
           topic: `A photo of ${activeProfile.name} doing cat things in ${location}`,
+          isDog,
         }),
       });
-
-      const data = await res.json();
       if (data.caption) {
         setCaption(data.caption);
       }
@@ -271,21 +281,17 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
                 <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1.5">
                   Location
                 </label>
-                <input
-                  type="text"
-                  list="post-location-options"
+                <select
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  placeholder="Type or choose a location"
                   className="w-full px-3 py-2 text-xs bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-100 outline-none"
-                />
-                <datalist id="post-location-options">
+                >
                   {LOCATIONS.map((loc) => (
                     <option key={loc} value={loc}>
-                      {loc}
+                      📍 {loc}
                     </option>
                   ))}
-                </datalist>
+                </select>
               </div>
 
               {/* Category Picker */}
@@ -293,21 +299,17 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
                 <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1.5">
                   Category
                 </label>
-                <input
-                  type="text"
-                  list="post-category-options"
+                <select
                   value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  placeholder="Type or choose a category"
+                  onChange={(e) => setCategory(e.target.value as Post['category'])}
                   className="w-full px-3 py-2 text-xs bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-100 outline-none"
-                />
-                <datalist id="post-category-options">
-                  {CATEGORIES.map((cat) => (
+                >
+                  {(isDog ? ['Puppies', 'Chonky Dogs', 'Costumes', 'Nap Champs', 'Zoomies', 'Fetch'] : ['Kittens', 'Chonkers', 'Cosplay', 'Nap Champs', 'Loafing', 'Zoomies']).map((cat) => (
                     <option key={cat} value={cat}>
-                      {cat}
+                      🏷️ {cat}
                     </option>
                   ))}
-                </datalist>
+                </select>
               </div>
 
             </div>

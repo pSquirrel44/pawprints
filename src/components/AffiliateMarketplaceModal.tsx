@@ -19,8 +19,6 @@ export const AffiliateMarketplaceModal: React.FC<AffiliateMarketplaceModalProps>
   activeProfile,
   speciesMode = 'cat',
 }) => {
-  if (!isOpen) return null;
-
   const playSound = isDog ? playWoofSound : playMeowSound;
 
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
@@ -31,6 +29,8 @@ export const AffiliateMarketplaceModal: React.FC<AffiliateMarketplaceModalProps>
   const [treatsCommission, setTreatsCommission] = useState(1420);
   const [isRedeeming, setIsRedeeming] = useState(false);
   const [redeemedSuccess, setRedeemedSuccess] = useState<string | null>(null);
+
+  if (!isOpen) return null;
 
   const categories = isDog
     ? ['All', 'Food & Bones', 'Leashes & Tech', 'Toys & Balls', 'Grooming & Health']

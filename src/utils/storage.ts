@@ -4,10 +4,21 @@ import {
   INITIAL_DOG_PROFILES, INITIAL_DOG_POSTS, INITIAL_DOG_STORIES, INITIAL_DOG_NOTIFICATIONS
 } from '../data/mockData';
 
-export function getStoredProfiles(species: 'cat' | 'dog' = 'cat'): CatProfile[] {
+type Species = 'cat' | 'dog';
+type Collection = 'profiles' | 'posts' | 'stories' | 'notifications' | 'active-profile';
+
+export function getStorageKey(ownerId: string, species: Species, collection: Collection): string {
+  if (!ownerId.trim()) {
+    throw new Error('A Clerk user ID is required for user-owned storage.');
+  }
+
+  return `pawprints:${ownerId}:${species}:${collection}:v2`;
+}
+
+export function getStoredProfiles(ownerId: string, species: Species = 'cat'): CatProfile[] {
   if (typeof window === 'undefined') return species === 'dog' ? INITIAL_DOG_PROFILES : INITIAL_PROFILES;
   try {
-    const key = `${species}_profiles_v1`;
+    const key = getStorageKey(ownerId, species, 'profiles');
     const data = localStorage.getItem(key);
     return data ? JSON.parse(data) : (species === 'dog' ? INITIAL_DOG_PROFILES : INITIAL_PROFILES);
   } catch (e) {
@@ -16,19 +27,19 @@ export function getStoredProfiles(species: 'cat' | 'dog' = 'cat'): CatProfile[] 
   }
 }
 
-export function saveProfiles(profiles: CatProfile[], species: 'cat' | 'dog' = 'cat') {
+export function saveProfiles(ownerId: string, profiles: CatProfile[], species: Species = 'cat') {
   if (typeof window === 'undefined') return;
   try {
-    localStorage.setItem(`${species}_profiles_v1`, JSON.stringify(profiles));
+    localStorage.setItem(getStorageKey(ownerId, species, 'profiles'), JSON.stringify(profiles));
   } catch (e) {
     console.error(`Failed to save ${species} profiles:`, e);
   }
 }
 
-export function getStoredPosts(species: 'cat' | 'dog' = 'cat'): Post[] {
+export function getStoredPosts(ownerId: string, species: Species = 'cat'): Post[] {
   if (typeof window === 'undefined') return species === 'dog' ? INITIAL_DOG_POSTS : INITIAL_POSTS;
   try {
-    const key = `${species}_posts_v1`;
+    const key = getStorageKey(ownerId, species, 'posts');
     const data = localStorage.getItem(key);
     return data ? JSON.parse(data) : (species === 'dog' ? INITIAL_DOG_POSTS : INITIAL_POSTS);
   } catch (e) {
@@ -37,19 +48,19 @@ export function getStoredPosts(species: 'cat' | 'dog' = 'cat'): Post[] {
   }
 }
 
-export function savePosts(posts: Post[], species: 'cat' | 'dog' = 'cat') {
+export function savePosts(ownerId: string, posts: Post[], species: Species = 'cat') {
   if (typeof window === 'undefined') return;
   try {
-    localStorage.setItem(`${species}_posts_v1`, JSON.stringify(posts));
+    localStorage.setItem(getStorageKey(ownerId, species, 'posts'), JSON.stringify(posts));
   } catch (e) {
     console.error(`Failed to save ${species} posts:`, e);
   }
 }
 
-export function getStoredStories(species: 'cat' | 'dog' = 'cat'): Story[] {
+export function getStoredStories(ownerId: string, species: Species = 'cat'): Story[] {
   if (typeof window === 'undefined') return species === 'dog' ? INITIAL_DOG_STORIES : INITIAL_STORIES;
   try {
-    const key = `${species}_stories_v1`;
+    const key = getStorageKey(ownerId, species, 'stories');
     const data = localStorage.getItem(key);
     return data ? JSON.parse(data) : (species === 'dog' ? INITIAL_DOG_STORIES : INITIAL_STORIES);
   } catch (e) {
@@ -58,19 +69,19 @@ export function getStoredStories(species: 'cat' | 'dog' = 'cat'): Story[] {
   }
 }
 
-export function saveStories(stories: Story[], species: 'cat' | 'dog' = 'cat') {
+export function saveStories(ownerId: string, stories: Story[], species: Species = 'cat') {
   if (typeof window === 'undefined') return;
   try {
-    localStorage.setItem(`${species}_stories_v1`, JSON.stringify(stories));
+    localStorage.setItem(getStorageKey(ownerId, species, 'stories'), JSON.stringify(stories));
   } catch (e) {
     console.error(`Failed to save ${species} stories:`, e);
   }
 }
 
-export function getStoredNotifications(species: 'cat' | 'dog' = 'cat'): NotificationItem[] {
+export function getStoredNotifications(ownerId: string, species: Species = 'cat'): NotificationItem[] {
   if (typeof window === 'undefined') return species === 'dog' ? INITIAL_DOG_NOTIFICATIONS : INITIAL_NOTIFICATIONS;
   try {
-    const key = `${species}_notifications_v1`;
+    const key = getStorageKey(ownerId, species, 'notifications');
     const data = localStorage.getItem(key);
     return data ? JSON.parse(data) : (species === 'dog' ? INITIAL_DOG_NOTIFICATIONS : INITIAL_NOTIFICATIONS);
   } catch (e) {
@@ -79,31 +90,30 @@ export function getStoredNotifications(species: 'cat' | 'dog' = 'cat'): Notifica
   }
 }
 
-export function saveNotifications(notifications: NotificationItem[], species: 'cat' | 'dog' = 'cat') {
+export function saveNotifications(ownerId: string, notifications: NotificationItem[], species: Species = 'cat') {
   if (typeof window === 'undefined') return;
   try {
-    localStorage.setItem(`${species}_notifications_v1`, JSON.stringify(notifications));
+    localStorage.setItem(getStorageKey(ownerId, species, 'notifications'), JSON.stringify(notifications));
   } catch (e) {
     console.error(`Failed to save ${species} notifications:`, e);
   }
 }
 
-export function getActiveProfileId(species: 'cat' | 'dog' = 'cat'): string {
+export function getActiveProfileId(ownerId: string, species: Species = 'cat'): string {
   const defaultId = species === 'dog' ? 'dog_1' : 'cat_1';
   if (typeof window === 'undefined') return defaultId;
   try {
-    return localStorage.getItem(`${species}_active_profile_id_v1`) || defaultId;
+    return localStorage.getItem(getStorageKey(ownerId, species, 'active-profile')) || defaultId;
   } catch (e) {
     return defaultId;
   }
 }
 
-export function setActiveProfileId(id: string, species: 'cat' | 'dog' = 'cat') {
+export function setActiveProfileId(ownerId: string, id: string, species: Species = 'cat') {
   if (typeof window === 'undefined') return;
   try {
-    localStorage.setItem(`${species}_active_profile_id_v1`, id);
+    localStorage.setItem(getStorageKey(ownerId, species, 'active-profile'), id);
   } catch (e) {
     console.error(`Failed to set active ${species} profile:`, e);
   }
 }
-

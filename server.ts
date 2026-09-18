@@ -7,36 +7,147 @@
 //     This bug has already been introduced and fixed multiple times. Leave this
 //     comment here as a reminder. If you see those lines, delete them.
 // ═══════════════════════════════════════════════════════════════════════════
-import express from 'express';
+import express, { type ErrorRequestHandler } from 'express';
 import path from 'path';
-import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI, Type } from '@google/genai';
-import { clerkMiddleware, requireAuth } from '@clerk/express';
+import { clerkMiddleware } from '@clerk/express';
 import dotenv from 'dotenv';
+import helmet from 'helmet';
+import { rateLimit } from 'express-rate-limit';
+import { requireApiAuth } from './server/auth';
+import { getServerConfig } from './server/config';
+import { isLandingDomain } from './server/domains';
+import usersRouter from './server/routes/users';
+import postsRouter from './server/routes/posts';
+import followsRouter from './server/routes/follows';
+import messagesRouter from './server/routes/messages';
+import notificationsRouter from './server/routes/notifications';
+import socialPool from './server/db/pool';
+import fs from 'fs';
+import {
+  createMemoryStateRepository,
+  createStateRepository,
+  speciesValues,
+  stateCollectionValues,
+} from './server/stateRepository';
+import {
+  booleanValue,
+  enumValue,
+  imageInput,
+  optionalText,
+  RequestValidationError,
+  statePayload,
+} from './server/validation';
 
-dotenv.config();
+dotenv.config({ path: ['.env.local', '.env'] });
 
 
 async function startServer() {
+  const config = getServerConfig(process.env);
+  let pool: Awaited<ReturnType<typeof createStateRepository>>['pool'] | null = null;
+  let stateRepository = createMemoryStateRepository().repository;
+
+  try {
+    const db = createStateRepository(config.databaseUrl);
+    pool = db.pool;
+    stateRepository = db.repository;
+    await stateRepository.migrate();
+  } catch (error) {
+    if (config.isProduction) {
+      throw error;
+    }
+    console.warn('PostgreSQL unavailable in local development mode; using in-memory state storage instead.');
+    stateRepository = createMemoryStateRepository().repository;
+  }
+
+  // Create the social graph tables (users/posts/follows/likes/comments/
+  // messages/notifications) if they don't already exist. Safe to run on
+  // every boot — every statement in schema.sql is IF NOT EXISTS.
+  try {
+    const schemaSql = fs.readFileSync(path.join(process.cwd(), 'server/db/schema.sql'), 'utf8');
+    await socialPool.query(schemaSql);
+  } catch (error) {
+    console.error('Social graph schema migration failed:', error);
+  }
+
   const app = express();
-  const PORT = 3000;
 
-  app.use(express.json({ limit: '10mb' }));
+  app.set('trust proxy', 1);
+  app.disable('x-powered-by');
+  app.use(helmet({
+    crossOriginEmbedderPolicy: false,
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: [
+          "'self'",
+          config.clerkFrontendApiOrigin,
+          'https://challenges.cloudflare.com',
+          'https://*.protect.clerk.com',
+        ],
+        connectSrc: [
+          "'self'",
+          config.clerkFrontendApiOrigin,
+          'https://*.protect.clerk.com:*',
+          'https://clerk-telemetry.com',
+          'https://*.clerk-telemetry.com',
+        ],
+        imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        workerSrc: ["'self'", 'blob:'],
+        frameSrc: ["'self'", 'https://challenges.cloudflare.com', 'https://*.protect.clerk.com'],
+        formAction: ["'self'"],
+        objectSrc: ["'none'"],
+        baseUri: ["'self'"],
+      },
+    },
+  }));
 
-  // Authenticate API traffic only. Clerk adds a short-lived handshake query
-  // parameter while establishing a browser session. Running the backend
-  // middleware globally makes that normal page request fail before the SPA or
-  // landing page can be served whenever credentials are being rotated.
-  app.use('/api', clerkMiddleware(), requireAuth());
+  // Clerk reads a session JWT from request cookies or the Authorization header.
+  // Clerk reads CLERK_SECRET_KEY and CLERK_PUBLISHABLE_KEY from the process
+  // environment. Passing dynamic keys here would also require a separate
+  // CLERK_ENCRYPTION_KEY, so keep credentials in the standard environment path.
+  app.use(clerkMiddleware({
+    authorizedParties: config.clerkAuthorizedParties,
+  }));
+
+  // Render must be able to check process health without a user session.
+  app.get(['/health', '/api/health'], (_req, res) => {
+    res.json({ status: 'ok', app: 'Pawprint Network' });
+  });
+
+  // Social graph API — each router authenticates its own routes
+  // (requireAuth/optionalAuth from server/middleware/auth.ts), so these
+  // are mounted before the blanket requireApiAuth below.
+  app.use('/api/users', usersRouter);
+  app.use('/api/posts', postsRouter);
+  app.use('/api/follows', followsRouter);
+  app.use('/api/messages', messagesRouter);
+  app.use('/api/notifications', notificationsRouter);
+
+  // Every remaining API route requires a Clerk-verified user. Parse request
+  // bodies only after authentication so anonymous clients cannot force Express
+  // to process large JSON payloads.
+  app.use('/api', requireApiAuth);
+  app.use('/api', rateLimit({
+    windowMs: 60_000,
+    limit: 30,
+    standardHeaders: 'draft-7',
+    legacyHeaders: false,
+    keyGenerator: (_req, res) => res.locals.auth.userId,
+    message: {
+      error: {
+        code: 'rate_limit_exceeded',
+        message: 'Too many API requests. Please try again shortly.',
+      },
+    },
+  }));
+  app.use('/api', express.json({ limit: '25mb' })); // raised to fit short in-app-recorded video clips
 
   // Initialize Gemini AI SDK lazily/safely
   const getGeminiClient = () => {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      throw new Error('GEMINI_API_KEY environment variable is not configured.');
-    }
     return new GoogleGenAI({
-      apiKey,
+      apiKey: config.geminiApiKey,
       httpOptions: {
         headers: {
           'User-Agent': 'aistudio-build',
@@ -47,23 +158,66 @@ async function startServer() {
 
   // --- API ROUTES ---
 
-  // Health check
-  app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', app: 'The Catwalk' });
+  app.get('/api/state/:species', async (req, res, next) => {
+    try {
+      const species = enumValue(req.params.species, 'species', speciesValues);
+      const state = await stateRepository.getUserState(res.locals.auth.userId, species);
+      return res.json({ state });
+    } catch (error: unknown) {
+      if (error instanceof RequestValidationError) {
+        return res.status(400).json({
+          error: { code: 'invalid_request', message: error.message },
+        });
+      }
+      return next(error);
+    }
+  });
+
+  app.put('/api/state/:species/:collection', async (req, res, next) => {
+    try {
+      const species = enumValue(req.params.species, 'species', speciesValues);
+      const collection = enumValue(req.params.collection, 'collection', stateCollectionValues);
+
+      if (!Object.prototype.hasOwnProperty.call(req.body || {}, 'data')) {
+        throw new RequestValidationError('data is required.');
+      }
+
+      await stateRepository.saveCollection(
+        res.locals.auth.userId,
+        species,
+        collection,
+        statePayload(req.body.data, collection),
+      );
+      return res.status(204).send();
+    } catch (error: unknown) {
+      if (error instanceof RequestValidationError) {
+        return res.status(400).json({
+          error: { code: 'invalid_request', message: error.message },
+        });
+      }
+      return next(error);
+    }
   });
 
   // AI Cat Caption Generator
   app.post('/api/gemini/cat-caption', async (req, res) => {
-    const { mood, breed, topic, location, isDog } = req.body || {};
+    let isDog = false;
+
     try {
+      const body = req.body || {};
+      const mood = optionalText(body.mood, 'mood', 100, 'Sassy Overlord');
+      const breed = optionalText(body.breed, 'breed', 100, 'Domestic Cat');
+      const topic = optionalText(body.topic, 'topic', 500, 'Living my best feline life');
+      const location = optionalText(body.location, 'location', 200, 'The Sunbeam');
+      isDog = booleanValue(body.isDog, 'isDog');
       const ai = getGeminiClient();
 
       const prompt = `You are a majestic, hilarious cat on The Catwalk (by Pawprint Network) writing a social media post caption.
 Context:
-- Mood: ${mood || 'Sassy Overlord'}
-- Breed: ${breed || 'Domestic Cat'}
-- Topic/Context: ${topic || 'Living my best feline life'}
-- Location: ${location || 'The Sunbeam'}
+- Mood: ${mood}
+- Breed: ${breed}
+- Topic/Context: ${topic}
+- Location: ${location}
 
 Write a cat perspective caption. Keep it under 200 characters, witty, filled with cat emojis (🐾, 😼, 🐟, 📦, ☀️).
 Also provide a 1-sentence "Human Translation".
@@ -95,12 +249,17 @@ Format response as strict JSON with fields:
 
       const data = JSON.parse(response.text || '{}');
       res.json(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      if (error instanceof RequestValidationError) {
+        return res.status(400).json({
+          error: { code: 'invalid_request', message: error.message },
+        });
+      }
       console.error('Gemini Caption Error:', error);
-      res.status(500).json({
-        error: error.message || 'Failed to generate cat caption',
+      return res.status(500).json({
+        error: 'Failed to generate a caption.',
         caption: isDog ? 'WOOF! Something interrupted my zoomies so I could not write a caption. 🦴 #GoodBoyBlocked' : 'Meow! The human delayed my treats so I refused to write a caption. 😼 #SassyCat',
-        humanTranslation: 'Translation: "Please check your Gemini API key in Settings > Secrets."',
+        humanTranslation: 'The caption service is temporarily unavailable.',
         tags: isDog ? ['#thedogpark', '#pawprintnetwork', '#geminiai'] : ['#thecatwalk', '#pawprintnetwork', '#geminiai'],
       });
     }
@@ -108,8 +267,13 @@ Format response as strict JSON with fields:
 
   // AI Meow Translator
   app.post('/api/gemini/meow-translator', async (req, res) => {
-    const { mode, text, isDog } = req.body || {};
+    let mode: 'human-to-cat' | 'cat-to-human' = 'human-to-cat';
+    let isDog = false;
     try {
+      const body = req.body || {};
+      mode = enumValue(body.mode, 'mode', ['human-to-cat', 'cat-to-human']);
+      const text = optionalText(body.text, 'text', 2_000);
+      isDog = booleanValue(body.isDog, 'isDog');
       const ai = getGeminiClient();
 
       let prompt = '';
@@ -142,10 +306,15 @@ Format response as strict JSON with fields:
 
       const data = JSON.parse(response.text || '{}');
       res.json(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      if (error instanceof RequestValidationError) {
+        return res.status(400).json({
+          error: { code: 'invalid_request', message: error.message },
+        });
+      }
       console.error('Gemini Translator Error:', error);
-      res.status(500).json({
-        error: error.message || 'Translation failed',
+      return res.status(500).json({
+        error: 'The translation service is temporarily unavailable.',
         translatedText: isDog
           ? (mode === 'human-to-cat'
               ? 'WOOF WOOF *zooms around yard* (one word registered and it was WALK).'
@@ -162,19 +331,20 @@ Format response as strict JSON with fields:
   // AI Cat Vision & Judgement Analyzer
   app.post('/api/gemini/cat-analyzer', async (req, res) => {
     try {
-      const { imageBase64, mimeType, description, isDog } = req.body;
+      const body = req.body || {};
+      const image = imageInput(body.imageBase64, body.mimeType);
+      const description = optionalText(body.description, 'description', 2_000);
+      const isDog = booleanValue(body.isDog, 'isDog');
       const ai = getGeminiClient();
 
       let contents: any = [];
 
-      if (imageBase64) {
-        // Strip data url prefix if present
-        const cleanBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, '');
+      if (image) {
         contents = [
           {
             inlineData: {
-              mimeType: mimeType || 'image/jpeg',
-              data: cleanBase64,
+              mimeType: image.mimeType,
+              data: image.data,
             },
           },
           {
@@ -220,9 +390,14 @@ Format response as strict JSON with fields:
 
       const data = JSON.parse(response.text || '{}');
       res.json(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      if (error instanceof RequestValidationError) {
+        return res.status(400).json({
+          error: { code: 'invalid_request', message: error.message },
+        });
+      }
       console.error('Gemini Analyzer Error:', error);
-      res.status(500).json({
+      return res.status(500).json({
         judgementLevel: 94,
         loafFormRating: '9.9 / 10 Flawless Tuck',
         innerMonologue: 'I am judging your life choices from this sunbeam.',
@@ -234,16 +409,52 @@ Format response as strict JSON with fields:
     }
   });
 
-  // --- VITE / STATIC SERVING ---
-  if (process.env.NODE_ENV !== 'production') {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: 'spa',
+  app.use('/api', (_req, res) => {
+    res.status(404).json({
+      error: { code: 'not_found', message: 'The requested API endpoint does not exist.' },
     });
-    app.use(vite.middlewares);
-  } else {
-    const distPath   = path.join(process.cwd(), 'dist');
-    const publicPath = path.join(process.cwd(), 'public');
+  });
+
+  const apiErrorHandler: ErrorRequestHandler = (error, req, res, next) => {
+    if (!req.path.startsWith('/api/')) {
+      return next(error);
+    }
+
+    console.error('Unhandled API error:', error);
+
+    if (error?.type === 'entity.too.large') {
+      return res.status(413).json({
+        error: { code: 'payload_too_large', message: 'The request body is too large.' },
+      });
+    }
+
+    if (error instanceof SyntaxError && 'body' in error) {
+      return res.status(400).json({
+        error: { code: 'invalid_json', message: 'The request body must contain valid JSON.' },
+      });
+    }
+
+    return res.status(500).json({
+      error: { code: 'internal_error', message: 'The server could not process the request.' },
+    });
+  };
+
+  app.use(apiErrorHandler);
+
+  
+    // --- VITE / STATIC SERVING ---
+    
+if (process.env.NODE_ENV !== 'production') {
+  const viteModuleName = ['vi', 'te'].join('');
+  const { createServer: createViteServer } = await import(viteModuleName);
+  const vite = await createViteServer({
+    server: { middlewareMode: true },
+    appType: 'spa',
+  });
+  app.use(vite.middlewares);
+} else {
+  const distPath = path.join(process.cwd(), 'dist', 'client');
+  const publicPath = path.join(process.cwd(), 'public');
 
     // Serve static assets (JS/CSS bundles, icons, etc.)
     // `index: false` on both: without it, express.static auto-serves
@@ -257,7 +468,7 @@ Format response as strict JSON with fields:
     app.use(express.static(publicPath, { index: false }));
 
     // ── Domain-aware routing ───────────────────────────────────────────────
-    // instameow.app and instawoof.app:
+    // pawprintsnetwork.com, instameow.app, and instawoof.app:
     //   /          → landing page (pawprint_landing.html)
     //   /app       → React social platform (index.html)
     //   /app/*     → React social platform (index.html)
@@ -266,13 +477,28 @@ Format response as strict JSON with fields:
     // pawprints-ryn4.onrender.com (and any other hostname):
     //   /          → React social platform directly (existing behaviour)
     // ─────────────────────────────────────────────────────────────────────
-    const CUSTOM_DOMAINS = ['instameow.app', 'instawoof.app', 'www.instameow.app', 'www.instawoof.app'];
+    const corporatePath = path.join(process.cwd(), 'corporate-site');
+    const corporateDomains = new Set(['pawprintsnetwork.com', 'www.pawprintsnetwork.com']);
 
     app.get('*', (req, res) => {
       const host = (req.hostname || '').toLowerCase();
-      const isCustomDomain = CUSTOM_DOMAINS.some(d => host === d || host.endsWith('.' + d));
 
-      if (isCustomDomain) {
+      if (corporateDomains.has(host)) {
+        // pawprintsnetwork.com is the corporate/parent site: About Us + legal
+        // pages, with the actual product still reachable at /app.
+        if (req.path === '/privacy') {
+          return res.sendFile(path.join(corporatePath, 'privacy.html'));
+        }
+        if (req.path === '/terms') {
+          return res.sendFile(path.join(corporatePath, 'terms.html'));
+        }
+        if (req.path === '/app' || req.path.startsWith('/app/')) {
+          return res.sendFile(path.join(distPath, 'index.html'));
+        }
+        return res.sendFile(path.join(corporatePath, 'index.html'));
+      }
+
+      if (isLandingDomain(host)) {
         // /app or /app/* → React SPA
         if (req.path === '/app' || req.path.startsWith('/app/')) {
           return res.sendFile(path.join(distPath, 'index.html'));
@@ -286,9 +512,22 @@ Format response as strict JSON with fields:
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🐾 🐾 The Catwalk (Pawprint Network) server listening on http://0.0.0.0:${PORT}`);
+  const server = app.listen(config.port, '0.0.0.0', () => {
+    console.log(`🐾 🐾 The Catwalk (Pawprint Network) server listening on http://0.0.0.0:${config.port}`);
   });
+
+  const shutdown = () => {
+    server.close(() => {
+      const finalize = pool ? pool.end() : Promise.resolve();
+      void finalize.finally(() => process.exit(0));
+    });
+  };
+
+  process.once('SIGTERM', shutdown);
+  process.once('SIGINT', shutdown);
 }
 
-startServer();
+startServer().catch(() => {
+  console.error('Pawprint Network could not start. Check the server configuration and database logs.');
+  process.exitCode = 1;
+});

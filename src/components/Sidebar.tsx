@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Compass, PlusSquare, Bookmark, User, MessageSquare, Sparkles, Cat, ShoppingBag, UserCheck, Plus, Volume2, Camera } from 'lucide-react';
+import { Home, Compass, PlusSquare, Bookmark, User, MessageSquare, Sparkles, Cat, ShoppingBag, UserCheck, Plus, Camera, Volume2 } from 'lucide-react';
 import { CatProfile } from '../types';
 import { playMeowSound, playWoofSound } from '../utils/audio';
 
@@ -14,8 +14,8 @@ interface SidebarProps {
   onOpenAnalyzerModal: () => void;
   onOpenAffiliateModal: () => void;
   onOpenSocialAuthModal: () => void;
-  onOpenSoundboard?: () => void;
-  onOpenCamera?: () => void;
+  onOpenSoundboard: () => void;
+  onOpenCamera: () => void;
   isDog?: boolean;
 }
 
@@ -174,42 +174,45 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
             </div>
           </button>
+        </div>
 
-          {onOpenSoundboard && (
-            <button
-              onClick={() => {
-                playSound(1.0);
-                onOpenSoundboard();
-              }}
-              className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-sky-700 dark:text-sky-300 bg-sky-50/70 dark:bg-sky-950/30 hover:bg-sky-100/80 dark:hover:bg-sky-900/50 border border-sky-200/60 dark:border-sky-800/40 transition-colors"
-            >
-              <Volume2 className="w-4 h-4 text-sky-500 shrink-0" />
-              <div className="text-left min-w-0">
-                <div className="font-bold truncate">{isDog ? 'Dog Park Sound Library' : 'Catwalk Sound Library'}</div>
-                <div className="text-[10px] text-sky-600/70 dark:text-sky-400/70 truncate">
-                  Play & mix realistic sound effects
-                </div>
-              </div>
-            </button>
-          )}
+        {/* Media Tools Section */}
+        <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800/80 space-y-2">
+          <p className="px-2 text-[11px] font-bold tracking-wider text-zinc-400 uppercase">
+            Media Tools
+          </p>
 
-          {onOpenCamera && (
-            <button
-              onClick={() => {
-                playSound(1.0);
-                onOpenCamera();
-              }}
-              className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-rose-700 dark:text-rose-300 bg-rose-50/70 dark:bg-rose-950/30 hover:bg-rose-100/80 dark:hover:bg-rose-900/50 border border-rose-200/60 dark:border-rose-800/40 transition-colors"
-            >
-              <Camera className="w-4 h-4 text-rose-500 shrink-0" />
-              <div className="text-left min-w-0">
-                <div className="font-bold truncate">Live Filter Camera</div>
-                <div className="text-[10px] text-rose-600/70 dark:text-rose-400/70 truncate">
-                  Snap a photo with fun filters
-                </div>
+          <button
+            onClick={() => {
+              playSound(1.1);
+              onOpenCamera();
+            }}
+            className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-rose-700 dark:text-rose-300 bg-rose-50/70 dark:bg-rose-950/30 hover:bg-rose-100/80 dark:hover:bg-rose-900/50 border border-rose-200/60 dark:border-rose-800/40 transition-colors"
+          >
+            <Camera className="w-4 h-4 text-rose-500 shrink-0" />
+            <div className="text-left min-w-0">
+              <div className="font-bold truncate">Live Filter Camera</div>
+              <div className="text-[10px] text-rose-600/70 dark:text-rose-400/70 truncate">
+                {isDog ? 'Snap a photo with Dog Park filters' : 'Snap a photo with Catwalk filters'}
               </div>
-            </button>
-          )}
+            </div>
+          </button>
+
+          <button
+            onClick={() => {
+              playSound(1.0);
+              onOpenSoundboard();
+            }}
+            className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-sky-700 dark:text-sky-300 bg-sky-50/70 dark:bg-sky-950/30 hover:bg-sky-100/80 dark:hover:bg-sky-900/50 border border-sky-200/60 dark:border-sky-800/40 transition-colors"
+          >
+            <Volume2 className="w-4 h-4 text-sky-500 shrink-0" />
+            <div className="text-left min-w-0">
+              <div className="font-bold truncate">{isDog ? 'Bark Sound Library' : 'Meow Sound Library'}</div>
+              <div className="text-[10px] text-sky-600/70 dark:text-sky-400/70 truncate">
+                Play real {isDog ? 'dog' : 'cat'} vocalizations
+              </div>
+            </div>
+          </button>
         </div>
 
       </div>

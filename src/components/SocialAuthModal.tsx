@@ -19,6 +19,7 @@ export const SocialAuthModal: React.FC<SocialAuthModalProps> = ({
 }) => {
   const { user } = useUser();
   const { signOut, openUserProfile } = useClerk();
+  const isEmailVerified = user?.primaryEmailAddress?.verification.status === 'verified';
 
   if (!isOpen) return null;
 
@@ -54,8 +55,10 @@ export const SocialAuthModal: React.FC<SocialAuthModalProps> = ({
                 <p className="font-bold text-zinc-900 dark:text-zinc-100 truncate">{user?.fullName ?? user?.username}</p>
                 <p className="text-xs text-zinc-500 truncate">{user?.primaryEmailAddress?.emailAddress}</p>
                 <div className="flex items-center gap-1 mt-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-green-500" />
-                  <span className="text-[11px] text-green-600 dark:text-green-400 font-semibold">Verified Pawprint Member</span>
+                  <ShieldCheck className={`w-3.5 h-3.5 ${isEmailVerified ? 'text-green-500' : 'text-amber-500'}`} />
+                  <span className={`text-[11px] font-semibold ${isEmailVerified ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                    {isEmailVerified ? 'Email verified' : 'Signed in · email not verified'}
+                  </span>
                 </div>
               </div>
             </div>

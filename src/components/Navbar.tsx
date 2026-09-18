@@ -164,7 +164,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Audio Synthesizer Toggle */}
           <button
             onClick={toggleSound}
-            title={isMuted ? (isDog ? 'Unmute Dog SFX' : 'Unmute Cat SFX') : (isDog ? 'Mute Dog SFX' : 'Mute Cat SFX')}
+            title={isMuted ? 'Unmute Cat SFX' : 'Mute Cat SFX'}
             className="p-2 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-colors relative"
           >
             {isMuted ? (

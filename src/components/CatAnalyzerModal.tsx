@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Sparkles, Upload, RefreshCw, Eye } from 'lucide-react';
 import { CatAnalysisResult } from '../types';
 import { playMeowSound, playPurrSound, playWoofSound } from '../utils/audio';
+import { useAuthenticatedApi } from '../auth/useAuthenticatedApi';
 
 interface CatAnalyzerModalProps {
   isOpen: boolean;
@@ -22,15 +23,16 @@ const SAMPLE_DOG_IMAGES = [
 ];
 
 export const CatAnalyzerModal: React.FC<CatAnalyzerModalProps> = ({ isOpen, onClose, isDog = false }) => {
-  if (!isOpen) return null;
-
   const samples = isDog ? SAMPLE_DOG_IMAGES : SAMPLE_CAT_IMAGES;
   const playSound = isDog ? playWoofSound : playMeowSound;
+  const apiRequest = useAuthenticatedApi();
 
   const [imageUrl, setImageUrl] = useState(samples[0].url);
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [analysisResult, setAnalysisResult] = useState<CatAnalysisResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  if (!isOpen) return null;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -52,7 +54,7 @@ export const CatAnalyzerModal: React.FC<CatAnalyzerModalProps> = ({ isOpen, onCl
     setIsLoading(true);
     playPurrSound();
     try {
-      const res = await fetch('/api/gemini/cat-analyzer', {
+      const data = await apiRequest<CatAnalysisResult>('/api/gemini/cat-analyzer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -63,7 +65,6 @@ export const CatAnalyzerModal: React.FC<CatAnalyzerModalProps> = ({ isOpen, onCl
             : `A majestic cat photo analysis for The Catwalk: ${imageUrl}`,
         }),
       });
-      const data = await res.json();
       setAnalysisResult(data);
       playSound(1.3);
     } catch (err) {

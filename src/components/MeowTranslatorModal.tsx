@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, MessageSquare, Sparkles, Volume2, RefreshCw, Copy, Check } from 'lucide-react';
 import { playMeowSound, playPurrSound, playWoofSound } from '../utils/audio';
+import { useAuthenticatedApi } from '../auth/useAuthenticatedApi';
 
 interface MeowTranslatorModalProps {
   isOpen: boolean;
@@ -34,9 +35,8 @@ const DOG_PRESETS = [
 ];
 
 export const MeowTranslatorModal: React.FC<MeowTranslatorModalProps> = ({ isOpen, onClose, isDog = false }) => {
-  if (!isOpen) return null;
-
   const playSound = isDog ? playWoofSound : playMeowSound;
+  const apiRequest = useAuthenticatedApi();
   const humanPresets   = isDog ? HUMAN_TO_DOG_PRESETS : HUMAN_TO_CAT_PRESETS;
   const petPresets     = isDog ? DOG_PRESETS : CAT_PRESETS;
   const petEmoji       = isDog ? '🐶' : '🐱';
@@ -56,17 +56,22 @@ export const MeowTranslatorModal: React.FC<MeowTranslatorModalProps> = ({ isOpen
   const [isLoading, setIsLoading] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
 
+  if (!isOpen) return null;
+
   const handleTranslate = async () => {
     if (!inputText.trim()) return;
     setIsLoading(true);
     playPurrSound();
     try {
-      const res = await fetch('/api/gemini/meow-translator', {
+      const data = await apiRequest<{
+        translatedText?: string;
+        catMood?: string;
+        actionNote?: string;
+      }>('/api/gemini/meow-translator', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mode, text: inputText, isDog }),
       });
-      const data = await res.json();
       setTranslatedResult(data.translatedText || (isDog ? 'Woof! *tail wags*' : 'Meow prrr *slow blink*'));
       setPetMood(data.catMood || (isDog ? 'Very Excited' : 'Mildly Intrigued'));
       setActionNote(data.actionNote || (isDog ? '*spins in a circle*' : '*Tail flicks once*'));

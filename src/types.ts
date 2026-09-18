@@ -56,7 +56,7 @@ export interface Post {
   isTreating?: boolean;
   isSaved?: boolean;
   tags: string[];
-  category: string;
+  category: 'Kittens' | 'Chonkers' | 'Cosplay' | 'Nap Champs' | 'Loafing' | 'Zoomies';
   sponsorBrand?: string; // Monetization sponsor tag
 }
 

@@ -19,7 +19,7 @@ const config: CapacitorConfig = {
   appName: 'The Catwalk',
   webDir: 'www',
   server: {
-    url: 'https://instameow.app',
+    url: 'https://instameow.app/app',
     androidScheme: 'https',
     iosScheme: 'https',
     allowNavigation: ['instameow.app', '*.instameow.app', '*.clerk.accounts.dev', '*.clerk.com'],
