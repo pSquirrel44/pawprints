@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Compass, PlusSquare, Bookmark, User, MessageSquare, Sparkles, Cat, ShoppingBag, UserCheck, Plus, Camera, Volume2 } from 'lucide-react';
+import { Home, Compass, PlusSquare, Bookmark, User, MessageSquare, Sparkles, Cat, ShoppingBag, UserCheck, Plus, Camera, Volume2, Bell } from 'lucide-react';
 import { CatProfile } from '../types';
 import { playMeowSound, playWoofSound } from '../utils/audio';
 
@@ -38,6 +38,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const navItems = [
     { id: 'feed', label: 'Feed', icon: Home },
     { id: 'explore', label: 'Explore', icon: Compass },
+    { id: 'messages', label: 'Messages', icon: MessageSquare },
+    { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'saved', label: isDog ? 'Saved Bones' : 'Saved Treats', icon: Bookmark },
     { id: 'profile', label: isDog ? 'Bark Profile' : 'Purr Profile', icon: User },
   ];
