@@ -9,8 +9,44 @@ interface ClerkAuthGateProps {
 export const ClerkAuthGate: React.FC<ClerkAuthGateProps> = ({ isDog = false, children }) => {
   const { isLoaded, isSignedIn } = useAuth();
   const [showSignUp, setShowSignUp] = React.useState(false);
+  const [authTimedOut, setAuthTimedOut] = React.useState(false);
+
+  React.useEffect(() => {
+    if (isLoaded) {
+      setAuthTimedOut(false);
+      return;
+    }
+
+    const timeout = window.setTimeout(() => setAuthTimedOut(true), 12_000);
+    return () => window.clearTimeout(timeout);
+  }, [isLoaded]);
 
   if (!isLoaded) {
+    if (authTimedOut) {
+      return (
+        <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-6 gap-5 text-center">
+          <img
+            src={isDog ? '/icons/instawoof-icon.png' : '/icons/instameow-icon.png'}
+            alt={isDog ? 'instawoof' : 'instameow'}
+            className="w-20 h-20 rounded-[22%] shadow-2xl"
+          />
+          <div className="space-y-2 max-w-sm">
+            <h1 className="text-zinc-100 text-xl font-bold">Sign-in is taking longer than expected</h1>
+            <p className="text-zinc-400 text-sm leading-relaxed">
+              Pawprint Network could not reach the sign-in service. Your account and posts are safe.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="brand-gradient rounded-full px-6 py-3 text-sm font-bold text-white shadow-lg hover:opacity-90 transition-opacity"
+          >
+            Try again
+          </button>
+        </div>
+      );
+    }
+
     return (
       <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center gap-4">
         <img
