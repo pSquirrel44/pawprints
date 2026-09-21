@@ -1,15 +1,27 @@
-const BASE = import.meta.env.VITE_API_URL || '';
+const BASE = import.meta.env?.VITE_API_URL || '';
+
+type TokenProvider = () => Promise<string | null>;
+
+let tokenProvider: TokenProvider | null = null;
+
+// Clerk session tokens are intentionally short-lived. AppProvider registers
+// getToken here so every protected request receives a current token instead of
+// reusing the snapshot captured when the user first signed in.
+export function setApiTokenProvider(provider: TokenProvider | null) {
+  tokenProvider = provider;
+}
 
 async function request<T>(
   path: string,
   options: RequestInit = {},
   token?: string
 ): Promise<T> {
+  const currentToken = tokenProvider ? await tokenProvider() : token;
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options.headers as Record<string, string>),
   };
-  if (token) headers['Authorization'] = `Bearer ${token}`;
+  if (currentToken) headers['Authorization'] = `Bearer ${currentToken}`;
 
   const res = await fetch(`${BASE}${path}`, { ...options, headers, credentials: 'include' });
   if (!res.ok) {
