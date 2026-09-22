@@ -521,7 +521,7 @@ export default function RichApp() {
       />
 
       {/* Main Container */}
-      <div className="max-w-7xl mx-auto flex pt-4 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto flex gap-6 pt-4 px-4 sm:px-6 lg:px-8">
         
         {/* Left Desktop Sidebar */}
         <Sidebar
@@ -541,7 +541,7 @@ export default function RichApp() {
         />
 
         {/* Center Main Content Area */}
-        <main className="flex-1 lg:ml-64 lg:mr-80 max-w-2xl mx-auto w-full">
+        <main className="flex-1 min-w-0 xl:mr-80 max-w-2xl mx-auto w-full">
           
           {/* Feed Tab View */}
           {activeTab === 'feed' && (

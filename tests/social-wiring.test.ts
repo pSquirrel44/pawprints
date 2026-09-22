@@ -5,6 +5,8 @@ import test from 'node:test';
 const serverSource = readFileSync(new URL('../server.ts', import.meta.url), 'utf8');
 const usersRouteSource = readFileSync(new URL('../server/routes/users.ts', import.meta.url), 'utf8');
 const authSource = readFileSync(new URL('../server/middleware/auth.ts', import.meta.url), 'utf8');
+const sidebarSource = readFileSync(new URL('../src/components/Sidebar.tsx', import.meta.url), 'utf8');
+const appSource = readFileSync(new URL('../src/RichApp.tsx', import.meta.url), 'utf8');
 
 test('social API parses JSON before mounting social routers', () => {
   const parser = serverSource.indexOf("app.use('/api', express.json({ limit: '25mb' }))");
@@ -20,4 +22,12 @@ test('user sync authenticates with Clerk without requiring an existing graph row
   assert.match(authSource, /export function requireClerkAuth/);
   assert.match(usersRouteSource, /router\.post\('\/sync', requireClerkAuth,/);
   assert.doesNotMatch(usersRouteSource, /router\.post\('\/sync', requireAuth,/);
+});
+
+test('desktop sidebar participates in layout instead of covering the applet', () => {
+  assert.match(sidebarSource, /\bsticky\b/);
+  assert.match(sidebarSource, /\bshrink-0\b/);
+  assert.doesNotMatch(sidebarSource, /\bfixed left-0\b/);
+  assert.doesNotMatch(appSource, /\blg:ml-64\b/);
+  assert.match(appSource, /\bmin-w-0\b/);
 });

@@ -45,7 +45,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   return (
-    <aside className="hidden lg:flex flex-col w-64 fixed left-0 top-[88px] bottom-0 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 p-4 justify-between z-30 overflow-y-auto">
+    <aside className="hidden lg:flex flex-col w-64 shrink-0 sticky top-[88px] h-[calc(100vh-88px)] bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 p-4 justify-between z-30 overflow-y-auto">
       <div className="space-y-5">
         
         {/* Main Nav Links */}
