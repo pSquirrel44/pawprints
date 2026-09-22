@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useAuth, useUser } from '@clerk/clerk-react';
 import { User, Species } from '../types/index';
-import { api } from './api';
+import { api, setApiTokenProvider } from './api';
 import { detectSpecies, getTheme, Theme } from './theme';
 
 interface AppContextValue {
@@ -24,6 +24,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [unreadCount, setUnreadCount] = useState(0);
   const species = detectSpecies();
   const theme = getTheme(species);
+
+  useEffect(() => {
+    setApiTokenProvider(getToken);
+    return () => setApiTokenProvider(null);
+  }, [getToken]);
 
   const refreshToken = useCallback(async () => {
     const t = await getToken();
