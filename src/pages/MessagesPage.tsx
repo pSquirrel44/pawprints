@@ -1,19 +1,21 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { Conversation, Message } from '../types/index';
 import { useApp } from '../lib/AppContext';
 import { api } from '../lib/api';
 import { Button } from '../components/ui/Button';
-import { formatDistanceToNow } from '../lib/utils';
+import { formatDistanceToNow, getPathUsername } from '../lib/utils';
 
 export default function MessagesPage() {
-  const { username: chatUsername } = useParams<{ username?: string }>();
+  const location = useLocation();
+  const chatUsername = getPathUsername(location.pathname, 'messages');
   const { theme, token, currentUser, refreshUnread } = useApp();
   const navigate = useNavigate();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState('');
   const [loadingConvos, setLoadingConvos] = useState(true);
   const [loadingMsgs, setLoadingMsgs] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -49,10 +51,13 @@ export default function MessagesPage() {
     e.preventDefault();
     if (!token || !chatUsername || !newMessage.trim()) return;
     setSending(true);
+    setSendError('');
     try {
       const msg = await api.sendMessage(chatUsername, newMessage.trim(), token) as Message;
       setMessages(prev => [...prev, msg]);
       setNewMessage('');
+    } catch (err) {
+      setSendError(err instanceof Error ? err.message : 'Message failed to send');
     } finally {
       setSending(false);
     }
@@ -155,6 +160,11 @@ export default function MessagesPage() {
             </div>
 
             {/* Input */}
+            {sendError && (
+              <div role="alert" style={{ padding: '8px 16px', color: '#ef4444', fontSize: 13 }}>
+                {sendError}
+              </div>
+            )}
             <form onSubmit={sendMessage} style={{ padding: '12px 16px',
               borderTop: `1px solid ${theme.border}`, display: 'flex', gap: 8 }}>
               <input

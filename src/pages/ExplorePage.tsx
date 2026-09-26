@@ -13,6 +13,19 @@ export default function ExplorePage() {
   const [tab, setTab] = useState<'posts' | 'people'>('posts');
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
+  const [searchedFor, setSearchedFor] = useState('');
+
+  // Show everyone by default so the People tab isn't empty before a search.
+  // An empty query matches all users (the server leaves out yourself).
+  function loadEveryone() {
+    return api.searchUsers('', token || undefined)
+      .then(data => setUsers(data as User[]))
+      .catch(() => {});
+  }
+
+  useEffect(() => {
+    if (!searchedFor) loadEveryone();
+  }, [token]);
 
   useEffect(() => {
     api.getExplore(species, 0, token || undefined)
@@ -22,11 +35,15 @@ export default function ExplorePage() {
 
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault();
-    if (!search.trim()) return;
+    const q = search.trim();
     setSearching(true);
     try {
-      const data = await api.searchUsers(search, token || undefined) as User[];
-      setUsers(data);
+      if (q) {
+        setUsers(await api.searchUsers(q, token || undefined) as User[]);
+      } else {
+        await loadEveryone();
+      }
+      setSearchedFor(q);
       setTab('people');
     } finally {
       setSearching(false);
@@ -87,12 +104,17 @@ export default function ExplorePage() {
         {tab === 'people' && (
           users.length === 0 ? (
             <div style={{ textAlign: 'center', padding: 40, color: theme.textMuted }}>
-              {search ? 'No users found.' : 'Search to find people to follow.'}
+              {searchedFor ? 'No users found.' : 'No one else has joined yet. Invite some friends!'}
             </div>
           ) : (
+            <>
+            <div style={{ color: theme.textMuted, fontSize: 13, marginBottom: 8 }}>
+              {searchedFor ? `Results for "${searchedFor}"` : 'Everyone on the app'}
+            </div>
             <div style={{ background: theme.surface, border: `1px solid ${theme.border}`, borderRadius: 16, overflow: 'hidden' }}>
               {users.map(u => <UserCard key={u.id} user={u} />)}
             </div>
+            </>
           )
         )}
       </div>
