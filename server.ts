@@ -13,10 +13,11 @@ import { GoogleGenAI, Type } from '@google/genai';
 import { clerkMiddleware } from '@clerk/express';
 import dotenv from 'dotenv';
 import helmet from 'helmet';
+import compression from 'compression';
 import { rateLimit } from 'express-rate-limit';
 import { requireApiAuth } from './server/auth';
 import { getServerConfig } from './server/config';
-import { isLandingDomain } from './server/domains';
+import { getAppBrand, isCorporateDomain } from './server/domains';
 import usersRouter from './server/routes/users';
 import postsRouter from './server/routes/posts';
 import followsRouter from './server/routes/follows';
@@ -46,6 +47,10 @@ async function startServer() {
   const config = getServerConfig(process.env);
   let pool: Awaited<ReturnType<typeof createStateRepository>>['pool'] | null = null;
   let stateRepository = createMemoryStateRepository().repository;
+  // In production, a database outage must not take the websites down (the
+  // company page, Privacy and Terms are static). The server keeps running,
+  // /api returns 503 until it is restarted with a working database.
+  let databaseUnavailable = false;
 
   try {
     const db = createStateRepository(config.databaseUrl);
@@ -54,26 +59,34 @@ async function startServer() {
     await stateRepository.migrate();
   } catch (error) {
     if (config.isProduction) {
-      throw error;
+      databaseUnavailable = true;
+      console.error(
+        'PostgreSQL unavailable: serving websites only, /api will return 503.',
+        error instanceof Error ? error.message : 'unknown error',
+      );
+    } else {
+      console.warn('PostgreSQL unavailable in local development mode; using in-memory state storage instead.');
     }
-    console.warn('PostgreSQL unavailable in local development mode; using in-memory state storage instead.');
     stateRepository = createMemoryStateRepository().repository;
   }
 
   // Create the social graph tables (users/posts/follows/likes/comments/
   // messages/notifications) if they don't already exist. Safe to run on
   // every boot — every statement in schema.sql is IF NOT EXISTS.
-  try {
-    const schemaSql = fs.readFileSync(path.join(process.cwd(), 'server/db/schema.sql'), 'utf8');
-    await socialPool.query(schemaSql);
-  } catch (error) {
-    console.error('Social graph schema migration failed:', error);
+  if (!databaseUnavailable) {
+    try {
+      const schemaSql = fs.readFileSync(path.join(process.cwd(), 'server/db/schema.sql'), 'utf8');
+      await socialPool.query(schemaSql);
+    } catch (error) {
+      console.error('Social graph schema migration failed:', error instanceof Error ? error.message : error);
+    }
   }
 
   const app = express();
 
   app.set('trust proxy', 1);
   app.disable('x-powered-by');
+  app.use(compression());
   app.use(helmet({
     crossOriginEmbedderPolicy: false,
     contentSecurityPolicy: {
@@ -113,7 +126,14 @@ async function startServer() {
 
   // Render must be able to check process health without a user session.
   app.get(['/health', '/api/health'], (_req, res) => {
-    res.json({ status: 'ok', app: 'Pawprint Network' });
+    res.json({ status: 'ok', app: 'Pawprint Network', database: databaseUnavailable ? 'unavailable' : 'ok' });
+  });
+
+  app.use('/api', (_req, res, next) => {
+    if (!databaseUnavailable) return next();
+    res.status(503).json({
+      error: { code: 'database_unavailable', message: 'The service is temporarily unavailable. Please try again soon.' },
+    });
   });
 
   // Social writes need parsed JSON before their routers run. Authentication is
@@ -459,59 +479,78 @@ if (process.env.NODE_ENV !== 'production') {
   const distPath = path.join(process.cwd(), 'dist', 'client');
   const publicPath = path.join(process.cwd(), 'public');
 
-    // Serve static assets (JS/CSS bundles, icons, etc.)
-    // `index: false` on both: without it, express.static auto-serves
-    // dist/index.html (and would do the same for a public/index.html) for
-    // any "/" request, which short-circuits the domain-aware routing below
-    // before it ever runs — that's why instameow.app and instawoof.app were
-    // both landing straight in the React app (defaulting to cat/Instameow)
-    // instead of the Pawprint Network landing page. The `app.get('*')`
-    // handler below is now the only thing that decides what "/" serves.
-    app.use(express.static(distPath, { index: false }));
-    app.use(express.static(publicPath, { index: false }));
+    // Serve static assets. Vite file names contain a content hash, so they can
+    // be cached for a year; anything else revalidates. `index: false` stops
+    // express.static from answering "/" itself, so the domain-aware routing
+    // below is the only thing that decides what "/" serves.
+    app.use(express.static(distPath, {
+      index: false,
+      setHeaders: (res, filePath) => {
+        if (filePath.includes(`${path.sep}assets${path.sep}`)) {
+          res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        }
+      },
+    }));
+    app.use(express.static(publicPath, { index: false, maxAge: '1h' }));
 
-    // ── Domain-aware routing ───────────────────────────────────────────────
-    // pawprintsnetwork.com, instameow.app, and instawoof.app:
-    //   /          → landing page (pawprint_landing.html)
-    //   /app       → React social platform (index.html)
-    //   /app/*     → React social platform (index.html)
-    //   everything else (assets, /api) → handled above
+    // ── Domain-aware routing: every domain is independent ──────────────────
+    // pawprintsnetwork.com (parent company):
+    //   /, /about        → company page (About + links to both apps)
+    //   /privacy(.html)  → Privacy Policy
+    //   /terms(.html)    → Terms of Service
+    //   /app, /app/*     → redirected to the company page (no app lives here)
     //
-    // pawprints-ryn4.onrender.com (and any other hostname):
-    //   /          → React social platform directly (existing behaviour)
+    // instameow.app (The Catwalk only):
+    //   /                → Catwalk landing page (public/landing-cat.html)
+    //   /app, /app/*     → React app, always cat
+    //
+    // instawoof.app (The Dog Park only):
+    //   /                → Dog Park landing page (public/landing-dog.html)
+    //   /app, /app/*     → React app, always dog
+    //
+    // Any other host (Render URL, localhost): React app directly.
+    // Privacy and Terms for the apps are served by pawprintsnetwork.com.
     // ─────────────────────────────────────────────────────────────────────
     const corporatePath = path.join(process.cwd(), 'corporate-site');
-    const corporateDomains = new Set(['pawprintsnetwork.com', 'www.pawprintsnetwork.com']);
+    const isAppPath = (p: string) => p === '/app' || p.startsWith('/app/');
+    const sendHtml = (res: express.Response, file: string, status = 200) => {
+      res.setHeader('Cache-Control', 'no-cache');
+      res.status(status).sendFile(file);
+    };
+
+    // Unknown API routes should be a JSON 404, never the website.
+    app.use('/api', (_req, res) => {
+      res.status(404).json({ error: { code: 'not_found', message: 'Unknown API route.' } });
+    });
 
     app.get('*', (req, res) => {
       const host = (req.hostname || '').toLowerCase();
 
-      if (corporateDomains.has(host)) {
-        // pawprintsnetwork.com is the corporate/parent site: About Us + legal
-        // pages, with the actual product still reachable at /app.
-        if (req.path === '/privacy') {
-          return res.sendFile(path.join(corporatePath, 'privacy.html'));
+      if (isCorporateDomain(host)) {
+        if (req.path === '/privacy' || req.path === '/privacy.html') {
+          return sendHtml(res, path.join(corporatePath, 'privacy.html'));
         }
-        if (req.path === '/terms') {
-          return res.sendFile(path.join(corporatePath, 'terms.html'));
+        if (req.path === '/terms' || req.path === '/terms.html') {
+          return sendHtml(res, path.join(corporatePath, 'terms.html'));
         }
-        if (req.path === '/app' || req.path.startsWith('/app/')) {
-          return res.sendFile(path.join(distPath, 'index.html'));
+        if (isAppPath(req.path)) {
+          return res.redirect(302, '/#apps');
         }
-        return res.sendFile(path.join(corporatePath, 'index.html'));
+        // Real pages return 200; any other path shows the company page with a 404 status.
+        const isHome = ['/', '/about', '/index.html'].includes(req.path);
+        return sendHtml(res, path.join(corporatePath, 'index.html'), isHome ? 200 : 404);
       }
 
-      if (isLandingDomain(host)) {
-        // /app or /app/* → React SPA
-        if (req.path === '/app' || req.path.startsWith('/app/')) {
-          return res.sendFile(path.join(distPath, 'index.html'));
+      const brand = getAppBrand(host);
+      if (brand) {
+        if (isAppPath(req.path)) {
+          return sendHtml(res, path.join(distPath, 'index.html'));
         }
-        // / or anything else → landing page
-        return res.sendFile(path.join(publicPath, 'pawprint_landing.html'));
+        return sendHtml(res, path.join(publicPath, `landing-${brand}.html`), req.path === '/' ? 200 : 404);
       }
 
       // Default (Render URL, local dev preview, etc.) → React SPA
-      res.sendFile(path.join(distPath, 'index.html'));
+      sendHtml(res, path.join(distPath, 'index.html'));
     });
   }
 
@@ -530,7 +569,9 @@ if (process.env.NODE_ENV !== 'production') {
   process.once('SIGINT', shutdown);
 }
 
-startServer().catch(() => {
-  console.error('Pawprint Network could not start. Check the server configuration and database logs.');
+startServer().catch((error: unknown) => {
+  // Log the reason (config errors never include secret values) so a failed
+  // start shows up in the host's logs instead of only as a 503.
+  console.error('Pawprint Network could not start:', error instanceof Error ? error.message : 'unknown error');
   process.exitCode = 1;
 });

@@ -1,3 +1,4 @@
+"use strict";
 var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
@@ -22,13 +23,13 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 
 // server.ts
-var import_express2 = __toESM(require("express"), 1);
+var import_express8 = __toESM(require("express"), 1);
 var import_path = __toESM(require("path"), 1);
-var import_vite = require("vite");
 var import_genai = require("@google/genai");
-var import_express3 = require("@clerk/express");
-var import_dotenv = __toESM(require("dotenv"), 1);
+var import_express9 = require("@clerk/express");
+var import_dotenv2 = __toESM(require("dotenv"), 1);
 var import_helmet = __toESM(require("helmet"), 1);
+var import_compression = __toESM(require("compression"), 1);
 var import_express_rate_limit = require("express-rate-limit");
 
 // server/auth.ts
@@ -76,10 +77,14 @@ function getClerkFrontendApiOrigin(publishableKey) {
 }
 function getServerConfig(env) {
   const isProduction = env.NODE_ENV === "production";
-  const clerkPublishableKey = env.CLERK_PUBLISHABLE_KEY || "";
-  const clerkSecretKey = env.CLERK_SECRET_KEY || "";
-  const databaseUrl = env.DATABASE_URL || "";
-  const geminiApiKey = env.GEMINI_API_KEY || "";
+  const defaultDevPublishableKey = `pk_test_${Buffer.from("example.clerk.accounts.dev$").toString("base64")}`;
+  const defaultDevSecretKey = "sk_test_dev_key";
+  const defaultDevDatabaseUrl = "postgresql://localhost:5432/pawprints";
+  const defaultDevGeminiKey = "dev-gemini-key";
+  const clerkPublishableKey = env.CLERK_PUBLISHABLE_KEY || (isProduction ? "" : defaultDevPublishableKey);
+  const clerkSecretKey = env.CLERK_SECRET_KEY || (isProduction ? "" : defaultDevSecretKey);
+  const databaseUrl = env.DATABASE_URL || (isProduction ? "" : defaultDevDatabaseUrl);
+  const geminiApiKey = env.GEMINI_API_KEY || (isProduction ? "" : defaultDevGeminiKey);
   const port = Number.parseInt(env.PORT || "3000", 10);
   if (!clerkPublishableKey.startsWith("pk_")) {
     throw new Error("CLERK_PUBLISHABLE_KEY is missing or malformed.");
@@ -106,7 +111,10 @@ function getServerConfig(env) {
     throw new Error("PORT must be an integer between 1 and 65535.");
   }
   return {
-    clerkAuthorizedParties: parseOrigins(env.CLERK_AUTHORIZED_PARTIES, isProduction),
+    clerkAuthorizedParties: parseOrigins(
+      env.CLERK_AUTHORIZED_PARTIES || (isProduction ? "" : "http://localhost:3000"),
+      isProduction
+    ),
     clerkFrontendApiOrigin: getClerkFrontendApiOrigin(clerkPublishableKey),
     databaseUrl,
     geminiApiKey,
@@ -116,20 +124,530 @@ function getServerConfig(env) {
 }
 
 // server/domains.ts
-var landingDomains = /* @__PURE__ */ new Set([
-  "pawprintsnetwork.com",
-  "www.pawprintsnetwork.com",
-  "instameow.app",
-  "www.instameow.app",
-  "instawoof.app",
-  "www.instawoof.app"
-]);
-function isLandingDomain(hostname) {
-  return landingDomains.has(hostname.trim().toLowerCase());
+var corporateDomains = /* @__PURE__ */ new Set(["pawprintsnetwork.com", "www.pawprintsnetwork.com"]);
+var appDomains = {
+  "instameow.app": "cat",
+  "www.instameow.app": "cat",
+  "instawoof.app": "dog",
+  "www.instawoof.app": "dog"
+};
+function clean(hostname) {
+  return (hostname || "").trim().toLowerCase();
+}
+function isCorporateDomain(hostname) {
+  return corporateDomains.has(clean(hostname));
+}
+function getAppBrand(hostname) {
+  return appDomains[clean(hostname)] ?? null;
 }
 
-// server/stateRepository.ts
+// server/routes/users.ts
+var import_express3 = require("express");
+
+// server/db/pool.ts
 var import_pg = require("pg");
+var import_dotenv = __toESM(require("dotenv"), 1);
+import_dotenv.default.config({ path: [".env.local", ".env"] });
+var pool = new import_pg.Pool({
+  connectionString: process.env.DATABASE_URL,
+  // Gandi's managed Postgres runs on localhost alongside the app and does not
+  // support/require SSL. Only enable SSL if explicitly requested via env var
+  // (for a remote/managed DB elsewhere that does require it).
+  ssl: process.env.DATABASE_SSL === "true" ? { rejectUnauthorized: false } : false,
+  max: 20,
+  idleTimeoutMillis: 3e4,
+  connectionTimeoutMillis: 2e3
+});
+pool.on("error", (err) => {
+  console.error("Unexpected DB pool error", err);
+});
+var pool_default = pool;
+
+// server/middleware/auth.ts
+var import_express2 = require("@clerk/express");
+function requireClerkAuth(req, res, next) {
+  try {
+    const { userId: clerkId } = (0, import_express2.getAuth)(req);
+    if (!clerkId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    req.clerkId = clerkId;
+    next();
+  } catch (err) {
+    console.error("Clerk auth middleware error:", err);
+    res.status(500).json({ error: "Auth error" });
+  }
+}
+async function requireAuth(req, res, next) {
+  try {
+    const { userId: clerkId } = (0, import_express2.getAuth)(req);
+    if (!clerkId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    const result = await pool_default.query(
+      "SELECT id FROM users WHERE clerk_id = $1",
+      [clerkId]
+    );
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: "User not found. Please complete setup." });
+    }
+    req.userId = result.rows[0].id;
+    req.clerkId = clerkId;
+    next();
+  } catch (err) {
+    console.error("Auth middleware error:", err);
+    res.status(500).json({ error: "Auth error" });
+  }
+}
+async function optionalAuth(req, res, next) {
+  try {
+    const { userId: clerkId } = (0, import_express2.getAuth)(req);
+    if (clerkId) {
+      const result = await pool_default.query(
+        "SELECT id FROM users WHERE clerk_id = $1",
+        [clerkId]
+      );
+      if (result.rows.length > 0) {
+        req.userId = result.rows[0].id;
+        req.clerkId = clerkId;
+      }
+    }
+    next();
+  } catch {
+    next();
+  }
+}
+
+// server/routes/users.ts
+var router = (0, import_express3.Router)();
+router.post("/sync", requireClerkAuth, async (req, res) => {
+  const { username, display_name, avatar_url, bio, species } = req.body;
+  try {
+    const result = await pool_default.query(
+      `INSERT INTO users (clerk_id, username, display_name, avatar_url, bio, species)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       ON CONFLICT (clerk_id) DO UPDATE SET
+         display_name = EXCLUDED.display_name,
+         avatar_url   = EXCLUDED.avatar_url,
+         bio          = COALESCE(NULLIF(EXCLUDED.bio, ''), users.bio),
+         species      = COALESCE(NULLIF(EXCLUDED.species, ''), users.species)
+       RETURNING *`,
+      [req.clerkId, username, display_name, avatar_url || "", bio || "", species || "cat"]
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    if (err.code === "23505") {
+      const existing = await pool_default.query("SELECT * FROM users WHERE clerk_id = $1", [req.clerkId]);
+      res.json(existing.rows[0]);
+    } else {
+      console.error("User sync error:", err);
+      res.status(500).json({ error: "Failed to sync user" });
+    }
+  }
+});
+router.get("/me", requireAuth, async (req, res) => {
+  const result = await pool_default.query(
+    `SELECT u.*,
+       (SELECT COUNT(*) FROM follows WHERE follower_id = u.id) AS following_count,
+       (SELECT COUNT(*) FROM follows WHERE following_id = u.id) AS follower_count,
+       (SELECT COUNT(*) FROM posts WHERE user_id = u.id) AS post_count
+     FROM users u WHERE u.id = $1`,
+    [req.userId]
+  );
+  res.json(result.rows[0]);
+});
+router.get("/:username", optionalAuth, async (req, res) => {
+  const { username } = req.params;
+  const result = await pool_default.query(
+    `SELECT u.id, u.username, u.display_name, u.bio, u.avatar_url, u.species, u.created_at,
+       (SELECT COUNT(*) FROM follows WHERE follower_id = u.id) AS following_count,
+       (SELECT COUNT(*) FROM follows WHERE following_id = u.id) AS follower_count,
+       (SELECT COUNT(*) FROM posts WHERE user_id = u.id) AS post_count
+     FROM users u WHERE u.username = $1`,
+    [username]
+  );
+  if (result.rows.length === 0) return res.status(404).json({ error: "User not found" });
+  const user = result.rows[0];
+  if (req.userId) {
+    const followCheck = await pool_default.query(
+      "SELECT id FROM follows WHERE follower_id = $1 AND following_id = $2",
+      [req.userId, user.id]
+    );
+    user.is_following = followCheck.rows.length > 0;
+  }
+  res.json(user);
+});
+router.put("/me", requireAuth, async (req, res) => {
+  const { display_name, bio, avatar_url } = req.body;
+  const result = await pool_default.query(
+    `UPDATE users SET
+       display_name = COALESCE($1, display_name),
+       bio          = COALESCE($2, bio),
+       avatar_url   = COALESCE($3, avatar_url)
+     WHERE id = $4 RETURNING *`,
+    [display_name, bio, avatar_url, req.userId]
+  );
+  res.json(result.rows[0]);
+});
+router.get("/:username/posts", optionalAuth, async (req, res) => {
+  const { username } = req.params;
+  const limit = Math.min(parseInt(req.query.limit) || 20, 50);
+  const offset = parseInt(req.query.offset) || 0;
+  const result = await pool_default.query(
+    `SELECT p.*, u.username, u.display_name, u.avatar_url, u.species AS user_species,
+       (SELECT COUNT(*) FROM likes WHERE post_id = p.id) AS like_count,
+       (SELECT COUNT(*) FROM comments WHERE post_id = p.id) AS comment_count,
+       ${req.userId ? `(SELECT id FROM likes WHERE post_id = p.id AND user_id = $4) IS NOT NULL AS liked_by_me,
+       EXISTS (SELECT 1 FROM follows WHERE follower_id = $4 AND following_id = p.user_id) AS author_is_following` : "false AS liked_by_me, false AS author_is_following"}
+     FROM posts p
+     JOIN users u ON u.id = p.user_id
+     WHERE u.username = $1
+     ORDER BY p.created_at DESC
+     LIMIT $2 OFFSET $3`,
+    req.userId ? [username, limit, offset, req.userId] : [username, limit, offset]
+  );
+  res.json(result.rows);
+});
+router.get("/search/query", optionalAuth, async (req, res) => {
+  const q = `%${req.query.q || ""}%`;
+  const result = await pool_default.query(
+    `SELECT id, username, display_name, avatar_url, species,
+       ${req.userId ? "EXISTS (SELECT 1 FROM follows WHERE follower_id = $2 AND following_id = users.id) AS is_following" : "false AS is_following"}
+     FROM users
+     WHERE (username ILIKE $1 OR display_name ILIKE $1)
+       ${req.userId ? "AND id <> $2" : ""}
+     LIMIT 20`,
+    req.userId ? [q, req.userId] : [q]
+  );
+  res.json(result.rows);
+});
+var users_default = router;
+
+// server/routes/posts.ts
+var import_express4 = require("express");
+var router2 = (0, import_express4.Router)();
+router2.get("/feed", requireAuth, async (req, res) => {
+  const limit = Math.min(parseInt(req.query.limit) || 20, 50);
+  const cursor = req.query.cursor;
+  const result = await pool_default.query(
+    `SELECT p.*, u.username, u.display_name, u.avatar_url, u.species AS user_species,
+       (SELECT COUNT(*) FROM likes WHERE post_id = p.id) AS like_count,
+       (SELECT COUNT(*) FROM comments WHERE post_id = p.id) AS comment_count,
+       (SELECT id FROM likes WHERE post_id = p.id AND user_id = $1) IS NOT NULL AS liked_by_me,
+       (p.user_id = $1 OR EXISTS (
+         SELECT 1 FROM follows WHERE follower_id = $1 AND following_id = p.user_id
+       )) AS author_is_following
+     FROM posts p
+     JOIN users u ON u.id = p.user_id
+     WHERE (p.user_id = $1 OR p.user_id IN (
+       SELECT following_id FROM follows WHERE follower_id = $1
+     ))
+     ${cursor ? "AND p.created_at < $3" : ""}
+     ORDER BY p.created_at DESC
+     LIMIT $2`,
+    cursor ? [req.userId, limit, cursor] : [req.userId, limit]
+  );
+  res.json(result.rows);
+});
+router2.get("/explore/:species", optionalAuth, async (req, res) => {
+  const { species } = req.params;
+  if (!["cat", "dog"].includes(species)) return res.status(400).json({ error: "Invalid species" });
+  const limit = Math.min(parseInt(req.query.limit) || 20, 50);
+  const offset = parseInt(req.query.offset) || 0;
+  const result = await pool_default.query(
+    `SELECT p.*, u.username, u.display_name, u.avatar_url, u.species AS user_species,
+       (SELECT COUNT(*) FROM likes WHERE post_id = p.id) AS like_count,
+       (SELECT COUNT(*) FROM comments WHERE post_id = p.id) AS comment_count,
+       ${req.userId ? `(SELECT id FROM likes WHERE post_id = p.id AND user_id = $4) IS NOT NULL AS liked_by_me,
+       EXISTS (SELECT 1 FROM follows WHERE follower_id = $4 AND following_id = p.user_id) AS author_is_following` : "false AS liked_by_me, false AS author_is_following"}
+     FROM posts p
+     JOIN users u ON u.id = p.user_id
+     WHERE p.species = $1
+     ORDER BY p.created_at DESC
+     LIMIT $2 OFFSET $3`,
+    req.userId ? [species, limit, offset, req.userId] : [species, limit, offset]
+  );
+  res.json(result.rows);
+});
+router2.get("/:id", optionalAuth, async (req, res) => {
+  const result = await pool_default.query(
+    `SELECT p.*, u.username, u.display_name, u.avatar_url, u.species AS user_species,
+       (SELECT COUNT(*) FROM likes WHERE post_id = p.id) AS like_count,
+       (SELECT COUNT(*) FROM comments WHERE post_id = p.id) AS comment_count,
+       ${req.userId ? `(SELECT id FROM likes WHERE post_id = p.id AND user_id = $2) IS NOT NULL AS liked_by_me,
+       EXISTS (SELECT 1 FROM follows WHERE follower_id = $2 AND following_id = p.user_id) AS author_is_following` : "false AS liked_by_me, false AS author_is_following"}
+     FROM posts p JOIN users u ON u.id = p.user_id
+     WHERE p.id = $1`,
+    req.userId ? [req.params.id, req.userId] : [req.params.id]
+  );
+  if (result.rows.length === 0) return res.status(404).json({ error: "Post not found" });
+  res.json(result.rows[0]);
+});
+router2.post("/", requireAuth, async (req, res) => {
+  const { content, image_url, species, location, category, video_url, media_type } = req.body;
+  if (!content?.trim()) return res.status(400).json({ error: "Content is required" });
+  if (!["cat", "dog"].includes(species)) return res.status(400).json({ error: "Species required" });
+  const safeLocation = typeof location === "string" ? location.trim().slice(0, 120) : "";
+  const safeCategory = typeof category === "string" ? category.trim().slice(0, 60) : "";
+  const safeMediaType = media_type === "video" ? "video" : "image";
+  const safeVideoUrl = typeof video_url === "string" ? video_url : "";
+  const result = await pool_default.query(
+    `INSERT INTO posts (user_id, content, image_url, species, location, category, video_url, media_type)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+     RETURNING *`,
+    [req.userId, content.trim(), image_url || "", species, safeLocation, safeCategory, safeVideoUrl, safeMediaType]
+  );
+  const post = result.rows[0];
+  const userRes = await pool_default.query("SELECT username, display_name, avatar_url FROM users WHERE id = $1", [req.userId]);
+  res.status(201).json({ ...post, ...userRes.rows[0], like_count: 0, comment_count: 0, liked_by_me: false, author_is_following: false });
+});
+router2.delete("/:id", requireAuth, async (req, res) => {
+  const result = await pool_default.query(
+    "DELETE FROM posts WHERE id = $1 AND user_id = $2 RETURNING id",
+    [req.params.id, req.userId]
+  );
+  if (result.rows.length === 0) return res.status(404).json({ error: "Not found or not yours" });
+  res.json({ deleted: true });
+});
+router2.post("/:id/like", requireAuth, async (req, res) => {
+  const postId = parseInt(req.params.id);
+  try {
+    await pool_default.query(
+      "INSERT INTO likes (post_id, user_id) VALUES ($1, $2) ON CONFLICT DO NOTHING",
+      [postId, req.userId]
+    );
+    const postOwner = await pool_default.query("SELECT user_id FROM posts WHERE id = $1", [postId]);
+    if (postOwner.rows.length > 0 && postOwner.rows[0].user_id !== req.userId) {
+      await pool_default.query(
+        `INSERT INTO notifications (user_id, type, actor_id, post_id)
+         VALUES ($1, 'like', $2, $3) ON CONFLICT DO NOTHING`,
+        [postOwner.rows[0].user_id, req.userId, postId]
+      );
+    }
+    const count = await pool_default.query("SELECT COUNT(*) FROM likes WHERE post_id = $1", [postId]);
+    res.json({ liked: true, like_count: parseInt(count.rows[0].count) });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to like" });
+  }
+});
+router2.delete("/:id/like", requireAuth, async (req, res) => {
+  const postId = parseInt(req.params.id);
+  await pool_default.query("DELETE FROM likes WHERE post_id = $1 AND user_id = $2", [postId, req.userId]);
+  const count = await pool_default.query("SELECT COUNT(*) FROM likes WHERE post_id = $1", [postId]);
+  res.json({ liked: false, like_count: parseInt(count.rows[0].count) });
+});
+router2.get("/:id/comments", optionalAuth, async (req, res) => {
+  const result = await pool_default.query(
+    `SELECT c.*, u.username, u.display_name, u.avatar_url
+     FROM comments c JOIN users u ON u.id = c.user_id
+     WHERE c.post_id = $1
+     ORDER BY c.created_at ASC`,
+    [req.params.id]
+  );
+  res.json(result.rows);
+});
+router2.post("/:id/comments", requireAuth, async (req, res) => {
+  const { content } = req.body;
+  if (!content?.trim()) return res.status(400).json({ error: "Comment cannot be empty" });
+  const result = await pool_default.query(
+    `INSERT INTO comments (post_id, user_id, content) VALUES ($1, $2, $3) RETURNING *`,
+    [req.params.id, req.userId, content.trim()]
+  );
+  const comment = result.rows[0];
+  const userRes = await pool_default.query("SELECT username, display_name, avatar_url FROM users WHERE id = $1", [req.userId]);
+  const postOwner = await pool_default.query("SELECT user_id FROM posts WHERE id = $1", [req.params.id]);
+  if (postOwner.rows.length > 0 && postOwner.rows[0].user_id !== req.userId) {
+    await pool_default.query(
+      `INSERT INTO notifications (user_id, type, actor_id, post_id) VALUES ($1, 'comment', $2, $3)`,
+      [postOwner.rows[0].user_id, req.userId, req.params.id]
+    );
+  }
+  res.status(201).json({ ...comment, ...userRes.rows[0] });
+});
+var posts_default = router2;
+
+// server/routes/follows.ts
+var import_express5 = require("express");
+var router3 = (0, import_express5.Router)();
+router3.post("/:username", requireAuth, async (req, res) => {
+  const { username } = req.params;
+  const target = await pool_default.query("SELECT id FROM users WHERE username = $1", [username]);
+  if (target.rows.length === 0) return res.status(404).json({ error: "User not found" });
+  const targetId = target.rows[0].id;
+  if (targetId === req.userId) return res.status(400).json({ error: "Can't follow yourself" });
+  await pool_default.query(
+    "INSERT INTO follows (follower_id, following_id) VALUES ($1, $2) ON CONFLICT DO NOTHING",
+    [req.userId, targetId]
+  );
+  await pool_default.query(
+    `INSERT INTO notifications (user_id, type, actor_id) VALUES ($1, 'follow', $2)`,
+    [targetId, req.userId]
+  );
+  res.json({ following: true });
+});
+router3.delete("/:username", requireAuth, async (req, res) => {
+  const { username } = req.params;
+  const target = await pool_default.query("SELECT id FROM users WHERE username = $1", [username]);
+  if (target.rows.length === 0) return res.status(404).json({ error: "User not found" });
+  await pool_default.query(
+    "DELETE FROM follows WHERE follower_id = $1 AND following_id = $2",
+    [req.userId, target.rows[0].id]
+  );
+  res.json({ following: false });
+});
+router3.get("/:username/followers", async (req, res) => {
+  const result = await pool_default.query(
+    `SELECT u.id, u.username, u.display_name, u.avatar_url, u.species
+     FROM follows f JOIN users u ON u.id = f.follower_id
+     WHERE f.following_id = (SELECT id FROM users WHERE username = $1)
+     ORDER BY f.created_at DESC LIMIT 50`,
+    [req.params.username]
+  );
+  res.json(result.rows);
+});
+router3.get("/:username/following", async (req, res) => {
+  const result = await pool_default.query(
+    `SELECT u.id, u.username, u.display_name, u.avatar_url, u.species
+     FROM follows f JOIN users u ON u.id = f.following_id
+     WHERE f.follower_id = (SELECT id FROM users WHERE username = $1)
+     ORDER BY f.created_at DESC LIMIT 50`,
+    [req.params.username]
+  );
+  res.json(result.rows);
+});
+router3.get("/suggestions/list", requireAuth, async (req, res) => {
+  const result = await pool_default.query(
+    `SELECT u.id, u.username, u.display_name, u.avatar_url, u.species,
+       (SELECT COUNT(*) FROM follows WHERE following_id = u.id) AS follower_count
+     FROM users u
+     WHERE u.id <> $1
+       AND u.id NOT IN (SELECT following_id FROM follows WHERE follower_id = $1)
+     ORDER BY follower_count DESC
+     LIMIT 10`,
+    [req.userId]
+  );
+  res.json(result.rows);
+});
+var follows_default = router3;
+
+// server/routes/messages.ts
+var import_express6 = require("express");
+var router4 = (0, import_express6.Router)();
+router4.get("/conversations", requireAuth, async (req, res) => {
+  const result = await pool_default.query(
+    `SELECT DISTINCT ON (other_user_id)
+       other_user_id,
+       u.username, u.display_name, u.avatar_url, u.species,
+       last_msg, last_at, unread_count
+     FROM (
+       SELECT
+         CASE WHEN sender_id = $1 THEN recipient_id ELSE sender_id END AS other_user_id,
+         content AS last_msg,
+         created_at AS last_at,
+         (SELECT COUNT(*) FROM messages m2
+          WHERE m2.sender_id = CASE WHEN m.sender_id = $1 THEN m.recipient_id ELSE m.sender_id END
+            AND m2.recipient_id = $1 AND m2.read_at IS NULL) AS unread_count
+       FROM messages m
+       WHERE sender_id = $1 OR recipient_id = $1
+       ORDER BY created_at DESC
+     ) AS convos
+     JOIN users u ON u.id = other_user_id
+     ORDER BY other_user_id, last_at DESC`,
+    [req.userId]
+  );
+  res.json(result.rows);
+});
+router4.get("/:username", requireAuth, async (req, res) => {
+  const target = await pool_default.query("SELECT id FROM users WHERE username = $1", [req.params.username]);
+  if (target.rows.length === 0) return res.status(404).json({ error: "User not found" });
+  const otherId = target.rows[0].id;
+  const result = await pool_default.query(
+    `SELECT m.*,
+       s.username AS sender_username, s.display_name AS sender_name, s.avatar_url AS sender_avatar,
+       r.username AS recipient_username
+     FROM messages m
+     JOIN users s ON s.id = m.sender_id
+     JOIN users r ON r.id = m.recipient_id
+     WHERE (sender_id = $1 AND recipient_id = $2)
+        OR (sender_id = $2 AND recipient_id = $1)
+     ORDER BY m.created_at ASC
+     LIMIT 100`,
+    [req.userId, otherId]
+  );
+  await pool_default.query(
+    `UPDATE messages SET read_at = NOW()
+     WHERE sender_id = $1 AND recipient_id = $2 AND read_at IS NULL`,
+    [otherId, req.userId]
+  );
+  res.json(result.rows);
+});
+router4.post("/:username", requireAuth, async (req, res) => {
+  const { content } = req.body;
+  if (!content?.trim()) return res.status(400).json({ error: "Message cannot be empty" });
+  const target = await pool_default.query("SELECT id FROM users WHERE username = $1", [req.params.username]);
+  if (target.rows.length === 0) return res.status(404).json({ error: "User not found" });
+  const otherId = target.rows[0].id;
+  if (otherId === req.userId) return res.status(400).json({ error: "Can't message yourself" });
+  const result = await pool_default.query(
+    `INSERT INTO messages (sender_id, recipient_id, content) VALUES ($1, $2, $3) RETURNING *`,
+    [req.userId, otherId, content.trim()]
+  );
+  const senderInfo = await pool_default.query(
+    "SELECT username, display_name, avatar_url FROM users WHERE id = $1",
+    [req.userId]
+  );
+  await pool_default.query(
+    `INSERT INTO notifications (user_id, type, actor_id) VALUES ($1, 'message', $2)`,
+    [otherId, req.userId]
+  );
+  res.status(201).json({
+    ...result.rows[0],
+    sender_username: senderInfo.rows[0].username,
+    sender_name: senderInfo.rows[0].display_name,
+    sender_avatar: senderInfo.rows[0].avatar_url
+  });
+});
+var messages_default = router4;
+
+// server/routes/notifications.ts
+var import_express7 = require("express");
+var router5 = (0, import_express7.Router)();
+router5.get("/", requireAuth, async (req, res) => {
+  const result = await pool_default.query(
+    `SELECT n.*,
+       u.username AS actor_username, u.display_name AS actor_name, u.avatar_url AS actor_avatar,
+       p.content AS post_preview
+     FROM notifications n
+     JOIN users u ON u.id = n.actor_id
+     LEFT JOIN posts p ON p.id = n.post_id
+     WHERE n.user_id = $1
+     ORDER BY n.created_at DESC
+     LIMIT 50`,
+    [req.userId]
+  );
+  res.json(result.rows);
+});
+router5.get("/unread-count", requireAuth, async (req, res) => {
+  const result = await pool_default.query(
+    "SELECT COUNT(*) FROM notifications WHERE user_id = $1 AND read_at IS NULL",
+    [req.userId]
+  );
+  res.json({ count: parseInt(result.rows[0].count) });
+});
+router5.post("/read-all", requireAuth, async (req, res) => {
+  await pool_default.query(
+    "UPDATE notifications SET read_at = NOW() WHERE user_id = $1 AND read_at IS NULL",
+    [req.userId]
+  );
+  res.json({ ok: true });
+});
+var notifications_default = router5;
+
+// server.ts
+var import_fs = __toESM(require("fs"), 1);
+
+// server/stateRepository.ts
+var import_pg2 = require("pg");
 var speciesValues = ["cat", "dog"];
 var stateCollectionValues = [
   "profiles",
@@ -188,18 +706,51 @@ var StateRepository = class {
     );
   }
 };
+var MemoryStateRepository = class {
+  state = /* @__PURE__ */ new Map();
+  async migrate() {
+    return;
+  }
+  async getUserState(userId, species) {
+    const speciesState = this.state.get(userId)?.get(species) ?? /* @__PURE__ */ new Map();
+    const state = {
+      profiles: null,
+      posts: null,
+      stories: null,
+      notifications: null,
+      "active-profile": null
+    };
+    for (const collection of stateCollectionValues) {
+      state[collection] = speciesState.get(collection) ?? null;
+    }
+    return state;
+  }
+  async saveCollection(userId, species, collection, payload) {
+    const userState = this.state.get(userId) ?? /* @__PURE__ */ new Map();
+    const speciesState = userState.get(species) ?? /* @__PURE__ */ new Map();
+    speciesState.set(collection, payload);
+    userState.set(species, speciesState);
+    this.state.set(userId, userState);
+  }
+};
 function createStateRepository(databaseUrl) {
-  const pool = new import_pg.Pool({
+  const pool2 = new import_pg2.Pool({
     connectionString: databaseUrl,
     max: 5,
     idleTimeoutMillis: 3e4,
     connectionTimeoutMillis: 5e3
   });
   return {
-    pool,
+    pool: pool2,
     repository: new StateRepository({
-      query: async (sql, values) => pool.query(sql, values)
+      query: async (sql, values) => pool2.query(sql, values)
     })
+  };
+}
+function createMemoryStateRepository() {
+  return {
+    pool: null,
+    repository: new MemoryStateRepository()
   };
 }
 
@@ -279,14 +830,41 @@ function imageInput(imageBase64, mimeType) {
 }
 
 // server.ts
-import_dotenv.default.config({ path: [".env.local", ".env"] });
+import_dotenv2.default.config({ path: [".env.local", ".env"] });
 async function startServer() {
   const config = getServerConfig(process.env);
-  const { pool, repository: stateRepository } = createStateRepository(config.databaseUrl);
-  await stateRepository.migrate();
-  const app = (0, import_express2.default)();
+  let pool2 = null;
+  let stateRepository = createMemoryStateRepository().repository;
+  let databaseUnavailable = false;
+  try {
+    const db = createStateRepository(config.databaseUrl);
+    pool2 = db.pool;
+    stateRepository = db.repository;
+    await stateRepository.migrate();
+  } catch (error) {
+    if (config.isProduction) {
+      databaseUnavailable = true;
+      console.error(
+        "PostgreSQL unavailable: serving websites only, /api will return 503.",
+        error instanceof Error ? error.message : "unknown error"
+      );
+    } else {
+      console.warn("PostgreSQL unavailable in local development mode; using in-memory state storage instead.");
+    }
+    stateRepository = createMemoryStateRepository().repository;
+  }
+  if (!databaseUnavailable) {
+    try {
+      const schemaSql = import_fs.default.readFileSync(import_path.default.join(process.cwd(), "server/db/schema.sql"), "utf8");
+      await pool_default.query(schemaSql);
+    } catch (error) {
+      console.error("Social graph schema migration failed:", error instanceof Error ? error.message : error);
+    }
+  }
+  const app = (0, import_express8.default)();
   app.set("trust proxy", 1);
   app.disable("x-powered-by");
+  app.use((0, import_compression.default)());
   app.use((0, import_helmet.default)({
     crossOriginEmbedderPolicy: false,
     contentSecurityPolicy: {
@@ -315,12 +893,24 @@ async function startServer() {
       }
     }
   }));
-  app.use((0, import_express3.clerkMiddleware)({
+  app.use((0, import_express9.clerkMiddleware)({
     authorizedParties: config.clerkAuthorizedParties
   }));
   app.get(["/health", "/api/health"], (_req, res) => {
-    res.json({ status: "ok", app: "Pawprint Network" });
+    res.json({ status: "ok", app: "Pawprint Network", database: databaseUnavailable ? "unavailable" : "ok" });
   });
+  app.use("/api", (_req, res, next) => {
+    if (!databaseUnavailable) return next();
+    res.status(503).json({
+      error: { code: "database_unavailable", message: "The service is temporarily unavailable. Please try again soon." }
+    });
+  });
+  app.use("/api", import_express8.default.json({ limit: "25mb" }));
+  app.use("/api/users", users_default);
+  app.use("/api/posts", posts_default);
+  app.use("/api/follows", follows_default);
+  app.use("/api/messages", messages_default);
+  app.use("/api/notifications", notifications_default);
   app.use("/api", requireApiAuth);
   app.use("/api", (0, import_express_rate_limit.rateLimit)({
     windowMs: 6e4,
@@ -335,7 +925,6 @@ async function startServer() {
       }
     }
   }));
-  app.use("/api", import_express2.default.json({ limit: "10mb" }));
   const getGeminiClient = () => {
     return new import_genai.GoogleGenAI({
       apiKey: config.geminiApiKey,
@@ -588,25 +1177,57 @@ Format response as strict JSON with fields:
   };
   app.use(apiErrorHandler);
   if (process.env.NODE_ENV !== "production") {
-    const vite = await (0, import_vite.createServer)({
+    const viteModuleName = ["vi", "te"].join("");
+    const { createServer: createViteServer } = await import(viteModuleName);
+    const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa"
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = import_path.default.join(process.cwd(), "dist");
+    const distPath = import_path.default.join(process.cwd(), "dist", "client");
     const publicPath = import_path.default.join(process.cwd(), "public");
-    app.use(import_express2.default.static(distPath, { index: false }));
-    app.use(import_express2.default.static(publicPath, { index: false }));
+    app.use(import_express8.default.static(distPath, {
+      index: false,
+      setHeaders: (res, filePath) => {
+        if (filePath.includes(`${import_path.default.sep}assets${import_path.default.sep}`)) {
+          res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+        }
+      }
+    }));
+    app.use(import_express8.default.static(publicPath, { index: false, maxAge: "1h" }));
+    const corporatePath = import_path.default.join(process.cwd(), "corporate-site");
+    const isAppPath = (p) => p === "/app" || p.startsWith("/app/");
+    const sendHtml = (res, file, status = 200) => {
+      res.setHeader("Cache-Control", "no-cache");
+      res.status(status).sendFile(file);
+    };
+    app.use("/api", (_req, res) => {
+      res.status(404).json({ error: { code: "not_found", message: "Unknown API route." } });
+    });
     app.get("*", (req, res) => {
       const host = (req.hostname || "").toLowerCase();
-      if (isLandingDomain(host)) {
-        if (req.path === "/app" || req.path.startsWith("/app/")) {
-          return res.sendFile(import_path.default.join(distPath, "index.html"));
+      if (isCorporateDomain(host)) {
+        if (req.path === "/privacy" || req.path === "/privacy.html") {
+          return sendHtml(res, import_path.default.join(corporatePath, "privacy.html"));
         }
-        return res.sendFile(import_path.default.join(publicPath, "pawprint_landing.html"));
+        if (req.path === "/terms" || req.path === "/terms.html") {
+          return sendHtml(res, import_path.default.join(corporatePath, "terms.html"));
+        }
+        if (isAppPath(req.path)) {
+          return res.redirect(302, "/#apps");
+        }
+        const isHome = ["/", "/about", "/index.html"].includes(req.path);
+        return sendHtml(res, import_path.default.join(corporatePath, "index.html"), isHome ? 200 : 404);
       }
-      res.sendFile(import_path.default.join(distPath, "index.html"));
+      const brand = getAppBrand(host);
+      if (brand) {
+        if (isAppPath(req.path)) {
+          return sendHtml(res, import_path.default.join(distPath, "index.html"));
+        }
+        return sendHtml(res, import_path.default.join(publicPath, `landing-${brand}.html`), req.path === "/" ? 200 : 404);
+      }
+      sendHtml(res, import_path.default.join(distPath, "index.html"));
     });
   }
   const server = app.listen(config.port, "0.0.0.0", () => {
@@ -614,14 +1235,15 @@ Format response as strict JSON with fields:
   });
   const shutdown = () => {
     server.close(() => {
-      void pool.end().finally(() => process.exit(0));
+      const finalize = pool2 ? pool2.end() : Promise.resolve();
+      void finalize.finally(() => process.exit(0));
     });
   };
   process.once("SIGTERM", shutdown);
   process.once("SIGINT", shutdown);
 }
-startServer().catch(() => {
-  console.error("Pawprint Network could not start. Check the server configuration and database logs.");
+startServer().catch((error) => {
+  console.error("Pawprint Network could not start:", error instanceof Error ? error.message : "unknown error");
   process.exitCode = 1;
 });
 //# sourceMappingURL=server.cjs.map

@@ -46,22 +46,29 @@ import NotificationsPage from './pages/NotificationsPage';
 import { RightSidebar } from './components/ui/RightSidebar';
 import { AUTO_OPEN_CREATE_FLAG } from './components/feed/PostComposer';
 
-// Determine which brand (cat/dog) to open the app in. Reads the `?app=`
-// param set by the Pawprint Network landing page (public/pawprint_landing.html)
-// so "Join The Catwalk" / "Join The Dog Park" actually land in the right
-// experience, instead of always defaulting to cat. Falls back to hostname
-// (instawoof.app → dog) for direct /app visits with no param.
+// Determine which brand (cat/dog) to open the app in.
+// instameow.app is always The Catwalk and instawoof.app is always The Dog Park:
+// the domain decides, and a stray `?app=` can't switch brands there. On any
+// other host (the Render URL, localhost) the `?app=` param can pick the brand.
 function getInitialSpeciesMode(): 'cat' | 'dog' {
   if (typeof window === 'undefined') return 'cat';
 
-  const params = new URLSearchParams(window.location.search);
-  const appParam = params.get('app');
-  if (appParam === 'cat' || appParam === 'dog') return appParam;
-
   const host = window.location.hostname.toLowerCase();
   if (host.includes('instawoof')) return 'dog';
+  if (host.includes('instameow')) return 'cat';
+
+  const appParam = new URLSearchParams(window.location.search).get('app');
+  if (appParam === 'cat' || appParam === 'dog') return appParam;
 
   return 'cat';
+}
+
+// True on instameow.app / instawoof.app. Those sites show only their own brand;
+// the two-app switcher and roadmap below are for neutral hosts (Render, localhost).
+function isBrandDomain(): boolean {
+  if (typeof window === 'undefined') return false;
+  const host = window.location.hostname.toLowerCase();
+  return host.includes('instameow') || host.includes('instawoof');
 }
 
 export default function RichApp() {
@@ -446,6 +453,21 @@ export default function RichApp() {
     <div className="min-h-screen bg-zinc-100 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans antialiased transition-colors">
       
       {/* Top Network Selector Header */}
+      {/* Brand domains: single-brand bar, no switcher, links to the parent company */}
+      {isBrandDomain() ? (
+        <div className="bg-zinc-900 text-white text-xs border-b border-zinc-800 py-1.5 px-4">
+          <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
+            <span className="font-extrabold tracking-wide">
+              {speciesMode === 'dog' ? '🐶 The Dog Park' : '🐱 The Catwalk'}
+            </span>
+            <nav className="flex items-center gap-3 text-zinc-400">
+              <a className="hover:text-white" href="https://pawprintsnetwork.com" target="_blank" rel="noopener noreferrer">About</a>
+              <a className="hover:text-white" href="https://pawprintsnetwork.com/privacy.html" target="_blank" rel="noopener noreferrer">Privacy</a>
+              <a className="hover:text-white" href="https://pawprintsnetwork.com/terms.html" target="_blank" rel="noopener noreferrer">Terms</a>
+            </nav>
+          </div>
+        </div>
+      ) : (
       <div className="bg-zinc-900 text-white text-xs border-b border-zinc-800 py-1.5 px-4 shadow-inner">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-2">
@@ -498,6 +520,7 @@ export default function RichApp() {
           </div>
         </div>
       </div>
+      )}
 
       {/* Top Navbar */}
       <Navbar
