@@ -2,7 +2,6 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { SignOutButton, useAuth } from '@clerk/clerk-react';
 import { useApp } from '../../lib/AppContext';
-import { AUTO_OPEN_CREATE_FLAG } from '../feed/PostComposer';
 
 const navItems = [
   { path: '/', label: 'Home', icon: '🏠' },
@@ -17,16 +16,8 @@ export function Sidebar() {
   const { isSignedIn } = useAuth();
   const location = useLocation();
 
-  function handleCreateClick() {
-    try {
-      sessionStorage.setItem(AUTO_OPEN_CREATE_FLAG, '1');
-    } catch {
-      // sessionStorage unavailable — the composer just won't auto-open
-    }
-  }
-
   return (
-    <nav className="app-sidebar" style={{
+    <nav style={{
       width: 240, flexShrink: 0, position: 'sticky', top: 0, height: '100vh',
       display: 'flex', flexDirection: 'column', padding: '20px 0',
       borderRight: `1px solid ${theme.border}`, background: theme.bg,
@@ -41,22 +32,6 @@ export function Sidebar() {
           </div>
         </Link>
       </div>
-
-      {/* Prominent create entry point — always reachable, one click from anywhere */}
-      {isSignedIn && (
-        <div style={{ padding: '0 20px 16px' }}>
-          <Link to="/" onClick={handleCreateClick} style={{ textDecoration: 'none' }}>
-            <div style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-              background: theme.gradientBtn, color: '#fff', fontWeight: 700, fontSize: 15,
-              borderRadius: 999, padding: '12px 0',
-            }}>
-              <span style={{ fontSize: 18 }}>➕</span>
-              <span className="nav-label">Create</span>
-            </div>
-          </Link>
-        </div>
-      )}
 
       {/* Nav links */}
       {navItems.map(item => {
@@ -78,7 +53,7 @@ export function Sidebar() {
             }}
           >
             <span style={{ fontSize: 20 }}>{item.icon}</span>
-            <span className="nav-label">{item.label}</span>
+            {item.label}
             {showBadge && (
               <span style={{
                 marginLeft: 'auto', background: theme.accent, color: '#fff',

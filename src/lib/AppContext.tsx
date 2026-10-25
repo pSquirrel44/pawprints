@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useAuth, useUser } from '@clerk/clerk-react';
-import { User, Species } from '../types/index';
+import { User, Species } from '../types';
 import { api } from './api';
 import { detectSpecies, getTheme, Theme } from './theme';
 

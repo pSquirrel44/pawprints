@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Conversation, Message } from '../types/index';
+import { Conversation, Message } from '../types';
 import { useApp } from '../lib/AppContext';
 import { api } from '../lib/api';
 import { Button } from '../components/ui/Button';
@@ -63,9 +63,9 @@ export default function MessagesPage() {
   }
 
   return (
-    <div className="messages-layout" style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
       {/* Conversations list */}
-      <div className="conversations-panel" style={{
+      <div style={{
         width: 300, flexShrink: 0, borderRight: `1px solid ${theme.border}`,
         overflowY: 'auto', display: 'flex', flexDirection: 'column',
       }}>
@@ -108,7 +108,7 @@ export default function MessagesPage() {
       </div>
 
       {/* Chat area */}
-      <div className="chat-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {!chatUsername ? (
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
             color: theme.textMuted, fontSize: 15 }}>

@@ -29,11 +29,6 @@ export interface Post {
   like_count: number;
   comment_count: number;
   liked_by_me: boolean;
-  author_is_following?: boolean;
-  location?: string;
-  category?: string;
-  video_url?: string;
-  media_type?: 'image' | 'video';
 }
 
 export interface Comment {

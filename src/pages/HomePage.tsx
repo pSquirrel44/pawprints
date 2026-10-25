@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '@clerk/clerk-react';
-import { Post } from '../types/index';
+import { Post } from '../types';
 import { useApp } from '../lib/AppContext';
 import { api } from '../lib/api';
 import { PostCard } from '../components/feed/PostCard';
@@ -110,4 +110,9 @@ export default function HomePage() {
       </div>
     </div>
   );
+}
+
+// Re-export with the hook available
+export default function HomePageWrapper() {
+  return <HomePage />;
 }

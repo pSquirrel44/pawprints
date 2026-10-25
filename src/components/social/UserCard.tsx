@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { User } from '../../types/index';
+import { User } from '../../types';
 import { useApp } from '../../lib/AppContext';
 import { api } from '../../lib/api';
 import { Avatar } from '../ui/Avatar';
@@ -12,7 +12,7 @@ interface UserCardProps {
 }
 
 export function UserCard({ user, compact = false }: UserCardProps) {
-  const { theme, token, currentUser } = useApp();
+  const { theme, token } = useApp();
   const [following, setFollowing] = useState(user.is_following ?? false);
   const [loading, setLoading] = useState(false);
 
@@ -56,7 +56,7 @@ export function UserCard({ user, compact = false }: UserCardProps) {
           </div>
         )}
       </div>
-      {token && currentUser?.id !== user.id && (
+      {token && (
         <Button
           variant={following ? 'secondary' : 'primary'}
           size="sm"

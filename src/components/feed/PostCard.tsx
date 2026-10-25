@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Post, Comment } from '../../types/index';
+import { Post, Comment } from '../../types';
 import { useApp } from '../../lib/AppContext';
 import { api } from '../../lib/api';
 import { Avatar } from '../ui/Avatar';
@@ -21,36 +21,8 @@ export function PostCard({ post, onDelete }: PostCardProps) {
   const [commentText, setCommentText] = useState('');
   const [loadingComments, setLoadingComments] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [following, setFollowing] = useState(post.author_is_following ?? false);
-  const [followLoading, setFollowLoading] = useState(false);
 
   const isOwn = currentUser?.id === post.user_id;
-
-  async function toggleFollow() {
-    if (!token || isOwn || followLoading) return;
-    setFollowLoading(true);
-    try {
-      if (following) {
-        await api.unfollow(post.username, token);
-        setFollowing(false);
-      } else {
-        await api.follow(post.username, token);
-        setFollowing(true);
-      }
-    } finally {
-      setFollowLoading(false);
-    }
-  }
-
-  async function sharePost() {
-    const url = `${window.location.origin}/profile/${post.username}`;
-    const data = { title: `${post.display_name} on Pawprint Network`, text: post.content, url };
-    if (navigator.share) {
-      await navigator.share(data).catch(() => undefined);
-      return;
-    }
-    await navigator.clipboard.writeText(`${post.content}\n${url}`);
-  }
 
   async function toggleLike() {
     if (!token) return;
@@ -121,19 +93,6 @@ export function PostCard({ post, onDelete }: PostCardProps) {
             @{post.username} · {formatDistanceToNow(post.created_at)}
           </div>
         </div>
-        {!isOwn && token && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Link to={`/messages/${post.username}`} style={{ color: theme.textMuted, textDecoration: 'none', fontSize: 13 }}>
-              Message
-            </Link>
-            <button onClick={toggleFollow} disabled={followLoading}
-              style={{ border: `1px solid ${theme.border}`, borderRadius: 8, padding: '6px 10px',
-                background: following ? theme.surface : theme.primary, color: following ? theme.text : '#fff',
-                cursor: followLoading ? 'wait' : 'pointer', fontSize: 12, fontWeight: 700 }}>
-              {followLoading ? '…' : following ? 'Following' : 'Follow'}
-            </button>
-          </div>
-        )}
         {isOwn && (
           <button onClick={deletePost}
             style={{ background: 'none', border: 'none', color: theme.textMuted, cursor: 'pointer', fontSize: 18 }}>
@@ -147,34 +106,8 @@ export function PostCard({ post, onDelete }: PostCardProps) {
         {post.content}
       </div>
 
-      {/* Location / category tags — free-form text the author chose, not a fixed list */}
-      {(post.location || post.category) && (
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', padding: '0 16px 10px' }}>
-          {post.category && (
-            <span style={{
-              fontSize: 12, fontWeight: 600, color: theme.primary, background: theme.surfaceHover,
-              border: `1px solid ${theme.border}`, borderRadius: 999, padding: '3px 10px',
-            }}>
-              🏷️ {post.category}
-            </span>
-          )}
-          {post.location && (
-            <span style={{
-              fontSize: 12, fontWeight: 600, color: theme.textMuted, background: theme.surfaceHover,
-              border: `1px solid ${theme.border}`, borderRadius: 999, padding: '3px 10px',
-            }}>
-              📍 {post.location}
-            </span>
-          )}
-        </div>
-      )}
-
-      {/* Video or image */}
-      {post.media_type === 'video' && post.video_url ? (
-        <video src={post.video_url} controls playsInline style={{
-          width: '100%', maxHeight: 480, objectFit: 'cover', display: 'block', background: '#000',
-        }} />
-      ) : post.image_url && (
+      {/* Image */}
+      {post.image_url && (
         <img src={post.image_url} alt="Post" style={{
           width: '100%', maxHeight: 400, objectFit: 'cover',
           display: 'block',
@@ -197,11 +130,6 @@ export function PostCard({ post, onDelete }: PostCardProps) {
             color: showComments ? theme.primary : theme.textMuted, fontSize: 14,
           }}>
           💬 {post.comment_count}
-        </button>
-        <button onClick={sharePost}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex',
-            alignItems: 'center', gap: 6, color: theme.textMuted, fontSize: 14 }}>
-          ↗ Share
         </button>
       </div>
 

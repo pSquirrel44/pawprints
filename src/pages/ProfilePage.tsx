@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { User, Post } from '../types/index';
+import { User, Post } from '../types';
 import { useApp } from '../lib/AppContext';
 import { api } from '../lib/api';
 import { PostCard } from '../components/feed/PostCard';
 import { Button } from '../components/ui/Button';
 
 export default function ProfilePage() {
-  const { username: routeUsername } = useParams<{ username: string }>();
+  const { username } = useParams<{ username: string }>();
   const { theme, token, currentUser } = useApp();
-  const username = routeUsername || currentUser?.username;
   const [user, setUser] = useState<User | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
@@ -79,7 +78,7 @@ export default function ProfilePage() {
     setEditing(false);
   }
 
-  if (loading) return <div style={{ textAlign: 'center', padding: 60, color: theme.textMuted }}>Loading…</div>;
+  if (loading) return <div style={{ textAlign: 'center', padding: 60, color: useApp().theme.textMuted }}>Loading…</div>;
   if (!user) return <div style={{ textAlign: 'center', padding: 60, color: '#f87171' }}>User not found</div>;
 
   const avatarSrc = user.avatar_url || `https://api.dicebear.com/7.x/thumbs/svg?seed=${user.username}`;

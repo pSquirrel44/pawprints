@@ -1,4 +1,4 @@
-import { Species } from '../types/index';
+import { Species } from '../types';
 
 export interface Theme {
   primary: string;

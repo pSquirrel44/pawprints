@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Post, User } from '../types/index';
+import { Post, User } from '../types';
 import { useApp } from '../lib/AppContext';
 import { api } from '../lib/api';
 import { PostCard } from '../components/feed/PostCard';

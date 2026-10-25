@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Notification } from '../types/index';
+import { Notification } from '../types';
 import { useApp } from '../lib/AppContext';
 import { api } from '../lib/api';
 import { formatDistanceToNow } from '../lib/utils';
