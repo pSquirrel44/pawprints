@@ -13,10 +13,7 @@ router.get('/feed', requireAuth, async (req: AuthRequest, res: Response) => {
     `SELECT p.*, u.username, u.display_name, u.avatar_url, u.species AS user_species,
        (SELECT COUNT(*) FROM likes WHERE post_id = p.id) AS like_count,
        (SELECT COUNT(*) FROM comments WHERE post_id = p.id) AS comment_count,
-       (SELECT id FROM likes WHERE post_id = p.id AND user_id = $1) IS NOT NULL AS liked_by_me,
-       (p.user_id = $1 OR EXISTS (
-         SELECT 1 FROM follows WHERE follower_id = $1 AND following_id = p.user_id
-       )) AS author_is_following
+       (SELECT id FROM likes WHERE post_id = p.id AND user_id = $1) IS NOT NULL AS liked_by_me
      FROM posts p
      JOIN users u ON u.id = p.user_id
      WHERE (p.user_id = $1 OR p.user_id IN (
@@ -42,8 +39,7 @@ router.get('/explore/:species', optionalAuth, async (req: AuthRequest, res: Resp
     `SELECT p.*, u.username, u.display_name, u.avatar_url, u.species AS user_species,
        (SELECT COUNT(*) FROM likes WHERE post_id = p.id) AS like_count,
        (SELECT COUNT(*) FROM comments WHERE post_id = p.id) AS comment_count,
-       ${req.userId ? `(SELECT id FROM likes WHERE post_id = p.id AND user_id = $4) IS NOT NULL AS liked_by_me,
-       EXISTS (SELECT 1 FROM follows WHERE follower_id = $4 AND following_id = p.user_id) AS author_is_following` : 'false AS liked_by_me, false AS author_is_following'}
+       ${req.userId ? `(SELECT id FROM likes WHERE post_id = p.id AND user_id = $4) IS NOT NULL AS liked_by_me` : 'false AS liked_by_me'}
      FROM posts p
      JOIN users u ON u.id = p.user_id
      WHERE p.species = $1
@@ -60,8 +56,7 @@ router.get('/:id', optionalAuth, async (req: AuthRequest, res: Response) => {
     `SELECT p.*, u.username, u.display_name, u.avatar_url, u.species AS user_species,
        (SELECT COUNT(*) FROM likes WHERE post_id = p.id) AS like_count,
        (SELECT COUNT(*) FROM comments WHERE post_id = p.id) AS comment_count,
-       ${req.userId ? `(SELECT id FROM likes WHERE post_id = p.id AND user_id = $2) IS NOT NULL AS liked_by_me,
-       EXISTS (SELECT 1 FROM follows WHERE follower_id = $2 AND following_id = p.user_id) AS author_is_following` : 'false AS liked_by_me, false AS author_is_following'}
+       ${req.userId ? `(SELECT id FROM likes WHERE post_id = p.id AND user_id = $2) IS NOT NULL AS liked_by_me` : 'false AS liked_by_me'}
      FROM posts p JOIN users u ON u.id = p.user_id
      WHERE p.id = $1`,
     req.userId ? [req.params.id, req.userId] : [req.params.id]
@@ -72,28 +67,21 @@ router.get('/:id', optionalAuth, async (req: AuthRequest, res: Response) => {
 
 // POST /api/posts
 router.post('/', requireAuth, async (req: AuthRequest, res: Response) => {
-  const { content, image_url, species, location, category, video_url, media_type } = req.body;
+  const { content, image_url, species } = req.body;
   if (!content?.trim()) return res.status(400).json({ error: 'Content is required' });
   if (!['cat', 'dog'].includes(species)) return res.status(400).json({ error: 'Species required' });
 
-  // location and category are free text — no fixed list, so users can name
-  // their own. We only cap length so nobody can jam an oversized string in.
-  const safeLocation = typeof location === 'string' ? location.trim().slice(0, 120) : '';
-  const safeCategory = typeof category === 'string' ? category.trim().slice(0, 60) : '';
-  const safeMediaType = media_type === 'video' ? 'video' : 'image';
-  const safeVideoUrl = typeof video_url === 'string' ? video_url : '';
-
   const result = await pool.query(
-    `INSERT INTO posts (user_id, content, image_url, species, location, category, video_url, media_type)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+    `INSERT INTO posts (user_id, content, image_url, species)
+     VALUES ($1, $2, $3, $4)
      RETURNING *`,
-    [req.userId, content.trim(), image_url || '', species, safeLocation, safeCategory, safeVideoUrl, safeMediaType]
+    [req.userId, content.trim(), image_url || '', species]
   );
 
   // Attach author info
   const post = result.rows[0];
   const userRes = await pool.query('SELECT username, display_name, avatar_url FROM users WHERE id = $1', [req.userId]);
-  res.status(201).json({ ...post, ...userRes.rows[0], like_count: 0, comment_count: 0, liked_by_me: false, author_is_following: false });
+  res.status(201).json({ ...post, ...userRes.rows[0], like_count: 0, comment_count: 0, liked_by_me: false });
 });
 
 // DELETE /api/posts/:id

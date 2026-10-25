@@ -7,7 +7,7 @@ const router = Router();
 // GET /api/notifications
 router.get('/', requireAuth, async (req: AuthRequest, res: Response) => {
   const result = await pool.query(
-    `SELECT n.*,
+    `SELECT n.*, 
        u.username AS actor_username, u.display_name AS actor_name, u.avatar_url AS actor_avatar,
        p.content AS post_preview
      FROM notifications n

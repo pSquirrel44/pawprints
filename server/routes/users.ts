@@ -1,11 +1,11 @@
 import { Router, Response } from 'express';
 import pool from '../db/pool';
-import { requireAuth, requireClerkAuth, optionalAuth, AuthRequest } from '../middleware/auth';
+import { requireAuth, optionalAuth, AuthRequest } from '../middleware/auth';
 
 const router = Router();
 
 // POST /api/users/sync — called after sign-in to upsert user
-router.post('/sync', requireClerkAuth, async (req: AuthRequest, res: Response) => {
+router.post('/sync', requireAuth, async (req: AuthRequest, res: Response) => {
   const { username, display_name, avatar_url, bio, species } = req.body;
   try {
     const result = await pool.query(
@@ -93,8 +93,7 @@ router.get('/:username/posts', optionalAuth, async (req: AuthRequest, res: Respo
     `SELECT p.*, u.username, u.display_name, u.avatar_url, u.species AS user_species,
        (SELECT COUNT(*) FROM likes WHERE post_id = p.id) AS like_count,
        (SELECT COUNT(*) FROM comments WHERE post_id = p.id) AS comment_count,
-       ${req.userId ? `(SELECT id FROM likes WHERE post_id = p.id AND user_id = $4) IS NOT NULL AS liked_by_me,
-       EXISTS (SELECT 1 FROM follows WHERE follower_id = $4 AND following_id = p.user_id) AS author_is_following` : 'false AS liked_by_me, false AS author_is_following'}
+       ${req.userId ? `(SELECT id FROM likes WHERE post_id = p.id AND user_id = $4) IS NOT NULL AS liked_by_me` : 'false AS liked_by_me'}
      FROM posts p
      JOIN users u ON u.id = p.user_id
      WHERE u.username = $1
@@ -109,13 +108,10 @@ router.get('/:username/posts', optionalAuth, async (req: AuthRequest, res: Respo
 router.get('/search/query', optionalAuth, async (req: AuthRequest, res: Response) => {
   const q = `%${(req.query.q as string) || ''}%`;
   const result = await pool.query(
-    `SELECT id, username, display_name, avatar_url, species,
-       ${req.userId ? 'EXISTS (SELECT 1 FROM follows WHERE follower_id = $2 AND following_id = users.id) AS is_following' : 'false AS is_following'}
-     FROM users
-     WHERE (username ILIKE $1 OR display_name ILIKE $1)
-       ${req.userId ? 'AND id <> $2' : ''}
+    `SELECT id, username, display_name, avatar_url, species FROM users
+     WHERE username ILIKE $1 OR display_name ILIKE $1
      LIMIT 20`,
-    req.userId ? [q, req.userId] : [q]
+    [q]
   );
   res.json(result.rows);
 });

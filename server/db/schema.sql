@@ -84,11 +84,3 @@ CREATE INDEX IF NOT EXISTS idx_follows_following ON follows(following_id);
 CREATE INDEX IF NOT EXISTS idx_messages_sender  ON messages(sender_id);
 CREATE INDEX IF NOT EXISTS idx_messages_recipient ON messages(recipient_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
-
--- Free-form post metadata: location and category are plain user-entered text,
--- not restricted to a fixed list — users can type any location or invent their
--- own category. video_url/media_type support uploaded or in-app-recorded video.
-ALTER TABLE posts ADD COLUMN IF NOT EXISTS location TEXT DEFAULT '';
-ALTER TABLE posts ADD COLUMN IF NOT EXISTS category TEXT DEFAULT '';
-ALTER TABLE posts ADD COLUMN IF NOT EXISTS video_url TEXT DEFAULT '';
-ALTER TABLE posts ADD COLUMN IF NOT EXISTS media_type TEXT DEFAULT 'image';

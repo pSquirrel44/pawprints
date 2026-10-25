@@ -37,7 +37,7 @@ router.get('/:username', requireAuth, async (req: AuthRequest, res: Response) =>
   const otherId = target.rows[0].id;
 
   const result = await pool.query(
-    `SELECT m.*,
+    `SELECT m.*, 
        s.username AS sender_username, s.display_name AS sender_name, s.avatar_url AS sender_avatar,
        r.username AS recipient_username
      FROM messages m
