@@ -212,6 +212,8 @@ export default function RichApp() {
   }, [catPosts, dogPosts]);
 
   const handleToggleSpeciesMode = () => {
+    // instameow.app is cats only and instawoof.app is dogs only: never switch there.
+    if (isBrandDomain()) return;
     if (speciesMode === 'cat') {
       // Save Cat state before switching
       saveProfiles(ownerId, profiles, 'cat');
@@ -528,6 +530,7 @@ export default function RichApp() {
         profiles={profiles}
         speciesMode={speciesMode}
         onToggleSpeciesMode={handleToggleSpeciesMode}
+        allowSpeciesSwitch={!isBrandDomain()}
         onSelectProfile={handleSelectProfile}
         onOpenCreateModal={handleOpenGraphComposer}
         onOpenCreateProfileModal={() => setIsCreateProfileModalOpen(true)}

@@ -8,6 +8,8 @@ interface NavbarProps {
   profiles: CatProfile[];
   speciesMode: 'cat' | 'dog';
   onToggleSpeciesMode: () => void;
+  /** False on instameow.app / instawoof.app, where the other brand must not be reachable. */
+  allowSpeciesSwitch?: boolean;
   onSelectProfile: (profile: CatProfile) => void;
   onOpenCreateModal: () => void;
   onOpenCreateProfileModal: () => void;
@@ -28,6 +30,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   profiles,
   speciesMode,
   onToggleSpeciesMode,
+  allowSpeciesSwitch = true,
   onSelectProfile,
   onOpenCreateModal,
   onOpenCreateProfileModal,
@@ -79,7 +82,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
           </div>
 
-          {/* Sister Platform Switcher Button */}
+          {/* Sister Platform Switcher Button (hidden on the single-brand sites) */}
+          {allowSpeciesSwitch && (
           <button
             onClick={() => {
               if (speciesMode === 'cat') playWoofSound(1.3);
@@ -97,6 +101,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span>{isDog ? '🐶 The Dog Park' : '🐱 The Catwalk'}</span>
             <span className="text-[10px] font-normal opacity-80 underline">Switch</span>
           </button>
+          )}
         </div>
 
         {/* Search Bar */}
